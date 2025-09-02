@@ -48,6 +48,14 @@ var gameState = {
   daoRunes: Array(9).fill(0),
   daoRuneMultiplier: 1,
 
+  // Organ purification system
+  organsPurified: 0,
+  cyclesCleansed: 0,
+  organTalent: [],
+  organProgress: 0,
+
+  acupoints: 0,
+
   // Core Formation system
   pillars: 0,
   pillarQuality: 0,
@@ -189,17 +197,17 @@ var shopItems = {
       return gameState.shopUpgrades.youthfullness == 0;
     },
     effect: function () {
-      gameState.shopUpgrades.youthfullness = 3;
+      gameState.shopUpgrades.youthfullness = 5;
     },
   },
   youthfullnessTwo: {
     name: "Delay Aging Some More",
     price: 400,
     condition: function () {
-      return gameState.shopUpgrades.youthfullness == 3;
+      return gameState.shopUpgrades.youthfullness == 5;
     },
     effect: function () {
-      gameState.shopUpgrades.youthfullness = 6;
+      gameState.shopUpgrades.youthfullness = 10;
     },
   },
   precociousOne: {
@@ -342,10 +350,16 @@ class GameInitializer {
     gameState.pillars = 0;
     gameState.pillarQuality = 0;
     gameState.dantianGrade = 0;
-    gameState.daoRunes = Array(9).fill(0);
+    gameState.daoRunes = gameState.daoRunes.map((value) =>
+      Math.random() < 0.5 ? 0 : value
+    );
     gameState.daoRuneMultiplier = 1;
     gameState.dead = false;
     gameState.dantianRerolls = gameState.shopUpgrades.dantianReroll;
+    gameState.organsPurified = 0;
+    gameState.cyclesCleansed = 0;
+    gameState.organProgress = 0;
+    gameState.acupoints = 0;
 
     // Reset current life statistics
     gameState.currentLifeStats = {
@@ -356,6 +370,7 @@ class GameInitializer {
     };
 
     // Generate random stats
+    this._generateOrganTalents();
     this._generateRandomStats();
     this._generateMeridianTalents();
     this._calculateStartAge();
@@ -382,6 +397,10 @@ class GameInitializer {
     ) {
       gameState.log.push("You awakened a special bloodline.");
       gameState.vitality += Utility.rollDice(10, 1, 2, 1);
+      gameState.organTalent[Utility.rollOneDice(5, 0)] += Utility.rollOneDice(
+        100,
+        1
+      );
       gameState.seenBloodline = true;
     }
     if (
@@ -465,6 +484,12 @@ class GameInitializer {
     });
   }
 
+  static _generateOrganTalents() {
+    gameState.meridianTalent = Array.from({ length: 5 }, () =>
+      Utility.rollOneDice(100, 1)
+    );
+  }
+
   static _calculateStartAge() {
     gameState.startAge =
       CONSTANTS.BASE_AGE -
@@ -494,7 +519,11 @@ class GameInitializer {
 // ===== CULTIVATION SYSTEM =====
 class CultivationSystem {
   static getQiCapacity() {
-    return gameState.meridianCapacity + gameState.dantianGrade * 400;
+    return (
+      gameState.meridianCapacity +
+      gameState.dantianGrade * 400 +
+      gameState.acupoints * 5
+    );
   }
 
   static getCombatPower() {
@@ -609,6 +638,28 @@ class CultivationSystem {
     );
   }
 
+  static cultivateOrgans() {
+    const qiTransferred = Math.ceil(gameState.qi / 50);
+    gameState.qi -= qiTransferred;
+    gameState.organProgress += qiTransferred * (1 + gameState.qiPurity / 100);
+    const organDifficulty =
+      20 *
+      (300 +
+        100 * Math.pow(gameState.cyclesCleansed, 2) -
+        gameState.vitality -
+        (gameState.cyclesCleansed + 2) *
+          gameState.organTalent[gameState.organsPurified]);
+    if (gameState.organProgress > organDifficulty) {
+      gameState.organProgress -= organDifficulty;
+      gameState.organsPurified += 1;
+      gameState.qiPurity += 2 + gameState.cyclesCleansed;
+      if (gameState.organsPurified == 5) {
+        gameState.organsPurified = 0;
+        gameState.cyclesCleansed += 1;
+      }
+    }
+  }
+
   static formPillar() {
     gameState.qi -= 200;
     const success = Math.min(6, Math.random() * gameState.qiFolds);
@@ -616,16 +667,11 @@ class CultivationSystem {
       gameState.pillars += 1;
       gameState.vitality += Math.floor(success * 4);
       gameState.pillarQuality += Math.floor(success / 2);
-      if (gameState.pillars == 8) {
-        gameState.log.push(
-          "Life " +
-            gameState.totalLives +
-            ": You formed your eigth pillar at age " +
-            gameState.age
-        );
+      if (gameState.pillars < 8 && gameState.qi >= 200) {
+        CultivationSystem.formPillar();
       }
     } else {
-      gameState.vitality -= Utility.rollOneDice(6, 1);
+      gameState.vitality -= Utility.rollOneDice(8, 1);
     }
   }
 
@@ -659,7 +705,7 @@ class CultivationSystem {
     }
     if (gameState.dantianGrade == 0) {
       gameState.log.push("You failed to form a dantian.");
-      gameState.vitality -= Utility.rollOneDice(10, 1);
+      gameState.vitality -= Utility.rollOneDice(10, 3);
       gameState.qi -= gameState.qi * Math.random() * 0.8;
     } else {
       gameState.qiPurity += gameState.dantianGrade * 3;
@@ -674,9 +720,23 @@ class CultivationSystem {
     }
   }
 
+  static cultivateAcupoints() {
+    const acupointCost = 100 + gameState.acupoints;
+    const acupointsOpened = Math.floor(
+      Math.min(
+        gameState.qi / acupointCost / 3,
+        Math.sqrt(gameState.vitality) * acupointCost
+      )
+    );
+    gameState.qi -= acupointCost * acupointsOpened;
+    gameState.acupointsOpened += acupointsOpened;
+  }
+
   static cultivate() {
     if (gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT) {
       this.cultivateMeridians();
+    } else if (gameState.qi >= 100) {
+      this.cultivateOrgans();
     }
 
     if (gameState.meridiansOpened >= CONSTANTS.MERIDIAN_COUNT) {
@@ -703,6 +763,8 @@ class CultivationSystem {
         this.formPillar();
       } else if (gameState.dantianGrade == 0) {
         this.formDantian();
+      } else {
+        gameState.cultivateAcupoints();
       }
     }
   }
@@ -740,6 +802,7 @@ class GameLogic {
     }
 
     // Aging effects
+    gameState.vitality += gameState.cyclesCleansed;
     if (
       gameState.age - gameState.shopUpgrades.youthfullness >
       gameState.qiPurity
@@ -789,7 +852,8 @@ class GameLogic {
         gameState.meridiansOpened * 2 +
         gameState.qiFolds * 4 +
         gameState.pillars * 2 +
-        gameState.dantianGrade * 3;
+        gameState.dantianGrade * 3 +
+        gameState.cyclesCleansed * 2;
       gameState.samsaraPoints += pointGain;
     }
   }
@@ -1006,10 +1070,12 @@ class UISystem {
     if (gameState.meridiansOpened >= 12) {
       elements["qi capacity"] = CultivationSystem.getQiCapacity();
       elements["qi folds"] = gameState.qiFolds;
+      elements["cycles cleansed"] = gameState.cyclesCleansed;
       elements["pillars"] = gameState.pillars;
       elements["dantian grade"] = gameState.dantianGrade;
       elements["circulation skill"] = gameState.circulationSkill;
       elements["circulation grade"] = gameState.circulationGrade;
+      elements["acupoints"] = gameState.acupoints;
     }
 
     // Update all elements using utility function
