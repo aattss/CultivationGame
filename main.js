@@ -8,7 +8,7 @@ const CONSTANTS = {
   QI_FOLD_MULTIPLIER: 2,
   QI_PURITY_BONUS: 2,
   CIRCULATION_BASE_DIFFICULTY: 10,
-  CIRCULATION_DIFFICULTY_MULTIPLIER: 10,
+  CIRCULATION_DIFFICULTY_MULTIPLIER: 9,
   GAME_TICK_INTERVAL: 1000,
   LUCKY_ENCOUNTER_BASE_CHANCE: 0.05,
   LUCKY_ENCOUNTER_TRIGGER: 0.1,
@@ -45,6 +45,8 @@ var gameState = {
   circulationProficiency: 0,
   circulationMemory: [0],
   circulationInsights: 0,
+  daoRunes: Array(9).fill(0),
+  daoRuneMultiplier: 1,
 
   // Core Formation system
   pillars: 0,
@@ -64,6 +66,8 @@ var gameState = {
   highestDantian: 0,
   log: [],
   samsaraPoints: 0,
+  seenBloodline: false,
+  seenDaoRune: false,
 
   // Statistics tracking for last 10 lives
   lifeStats: [],
@@ -90,6 +94,7 @@ var gameState = {
     earlyStart: 0,
     bloodlineReroll: 0,
     dantianReroll: 0,
+    daoRuneReroll: 0,
   },
 };
 
@@ -138,7 +143,10 @@ var shopItems = {
     name: "Comprehension 2 Dice -> B2o3",
     price: 1200,
     condition: function () {
-      return gameState.shopUpgrades.rerollComprehension == 0;
+      return (
+        gameState.shopUpgrades.rerollComprehension == 0 &&
+        gameState.highestMeridian >= 12
+      );
     },
     effect: function () {
       gameState.shopUpgrades.rerollComprehension = 1;
@@ -218,7 +226,9 @@ var shopItems = {
     name: "Additional Bloodline Chance",
     price: 1100,
     condition: function () {
-      return gameState.shopUpgrades.bloodlineReroll == 0;
+      return (
+        gameState.shopUpgrades.bloodlineReroll == 0 && gameState.seenBloodline
+      );
     },
     effect: function () {
       gameState.shopUpgrades.bloodlineReroll = 1;
@@ -234,11 +244,34 @@ var shopItems = {
       gameState.shopUpgrades.bloodlineReroll = 2;
     },
   },
+  daoRuneOneReroll: {
+    name: "Additional Dao Rune Chance",
+    price: 2500,
+    condition: function () {
+      return gameState.shopUpgrades.daoRuneReroll == 0 && gameState.seenDaoRune;
+    },
+    effect: function () {
+      gameState.shopUpgrades.daoRuneReroll = 1;
+    },
+  },
+  daoRuneSecondReroll: {
+    name: "Another Additional Dao Rune Chance",
+    price: 9900,
+    condition: function () {
+      return gameState.shopUpgrades.daoRuneReroll == 1;
+    },
+    effect: function () {
+      gameState.shopUpgrades.daoRuneReroll = 2;
+    },
+  },
   dantianOneReroll: {
     name: "Additional Chance In Dantian Formation",
     price: 2200,
     condition: function () {
-      return gameState.shopUpgrades.dantianReroll == 0;
+      return (
+        gameState.shopUpgrades.dantianReroll == 0 &&
+        gameState.highestDantian < 0
+      );
     },
     effect: function () {
       gameState.shopUpgrades.bloodlineReroll = 1;
@@ -309,6 +342,8 @@ class GameInitializer {
     gameState.pillars = 0;
     gameState.pillarQuality = 0;
     gameState.dantianGrade = 0;
+    gameState.daoRunes = Array(9).fill(0);
+    gameState.daoRuneMultiplier = 1;
     gameState.dead = false;
     gameState.dantianRerolls = gameState.shopUpgrades.dantianReroll;
 
@@ -347,6 +382,18 @@ class GameInitializer {
     ) {
       gameState.log.push("You awakened a special bloodline.");
       gameState.vitality += Utility.rollDice(10, 1, 2, 1);
+      gameState.seenBloodline = true;
+    }
+    if (
+      Utility.rollDice(100, 1, 1, gameState.shopUpgrades.daoRuneReroll) == 100
+    ) {
+      gameState.log.push("You see a strange symbol in your dreams.");
+      gameState.daoRunes[Utility.rollOneDice(9, 1)] = 1;
+      gameState.daoRuneMultiplier = Math.pow(
+        2.5,
+        Utility.sum(gameState.daoRunes)
+      );
+      gameState.seenDaoRune = true;
     }
 
     // Comprehension with memory bonus
@@ -464,7 +511,7 @@ class CultivationSystem {
     return (
       Math.ceil(
         Math.pow(gameState.circulationSkill + 1, 2) *
-          Math.pow(2, gameState.circulationGrade) +
+          Math.pow(1.7, gameState.circulationGrade) +
           gameState.vitality / 4
       ) *
       (1 + gameState.dantianGrade)
@@ -514,7 +561,8 @@ class CultivationSystem {
   }
 
   static cultivateCirculation() {
-    gameState.circulationProficiency += gameState.comprehension;
+    gameState.circulationProficiency +=
+      gameState.comprehension * gameState.daoRuneMultiplier;
     const circulationDifficulty =
       CONSTANTS.CIRCULATION_BASE_DIFFICULTY *
       Math.pow(
@@ -582,7 +630,7 @@ class CultivationSystem {
   }
 
   static formDantian() {
-    let difficulty = Math.rollOneDice(2 * gameState.dantianGrade + 14, 1);
+    let difficulty = Utility.rollOneDice(2 * gameState.dantianGrade + 14, 1);
     let cost = 50 * gameState.dantianGrade;
     const foundation = gameState.pillarQuality + gameState.qiFolds;
     while (
@@ -656,6 +704,10 @@ class CultivationSystem {
         this.formDantian();
       }
     }
+  }
+
+  static gainRandomDaoRune() {
+    CultivationSystem.gainRandomDaoRune();
   }
 }
 
@@ -766,7 +818,7 @@ class GameLogic {
       CONSTANTS.LUCKY_ENCOUNTER_BASE_CHANCE *
         (Math.log(gameState.luck / 5) / Math.log(2))
     ) {
-      let event = Utility.rollOneDice(4, 1);
+      let event = Utility.rollOneDice(5, 1);
       let magnitude = Utility.rollOneDice(Math.sqrt(gameState.luck), 1);
       switch (event) {
         case 1:
@@ -805,6 +857,11 @@ class GameLogic {
                   magnitude * gameState.getCombatPower() * Math.random(10)
                 )
             );
+          }
+          break;
+        case 5:
+          if (Math.random() < 0.1) {
+            CultivationSystem.gainRandomDaoRune();
           }
           break;
       }
