@@ -625,7 +625,7 @@ class CultivationSystem {
         );
       }
     } else {
-      gameState.vitality -= 3;
+      gameState.vitality -= Utility.rollOneDice(6, 1);
     }
   }
 
@@ -640,7 +640,7 @@ class CultivationSystem {
         foundation
     ) {
       gameState.dantianRerolls -= 1;
-      difficulty = Math.rollOneDice(2 * gameState.dantianGrade + 14, 1);
+      difficulty = Utility.rollOneDice(2 * gameState.dantianGrade + 14, 1);
     }
     while (
       gameState.qi > cost &&
@@ -653,12 +653,13 @@ class CultivationSystem {
       difficulty = Math.random() * (gameState.dantianGrade + 12);
       while (gameState.dantianRerolls > 0 && difficulty < foundation) {
         gameState.dantianRerolls -= 1;
-        difficulty = Math.rollOneDice(2 * gameState.dantianGrade + 14, 1);
+        difficulty = Utility.rollOneDice(2 * gameState.dantianGrade + 14, 1);
       }
       cost = 50 * gameState.dantianGrade;
     }
     if (gameState.dantianGrade == 0) {
-      gameState.vitality -= 5;
+      gameState.log.push("You failed to form a dantian.");
+      gameState.vitality -= Utility.rollOneDice(10, 1);
       gameState.qi -= gameState.qi * Math.random() * 0.8;
     } else {
       gameState.qiPurity += gameState.dantianGrade * 3;
@@ -667,7 +668,7 @@ class CultivationSystem {
           gameState.totalLives +
           ": You formed a grade " +
           gameState.dantianGrade +
-          "dantian at age " +
+          " dantian at age " +
           gameState.age
       );
     }
@@ -696,7 +697,7 @@ class CultivationSystem {
 
     if (
       gameState.qi > 200 &&
-      gameState.qi == CultivationSystem.getQiCapacity()
+      gameState.qi >= 0.95 * CultivationSystem.getQiCapacity()
     ) {
       if (gameState.pillars < 8) {
         this.formPillar();
@@ -824,10 +825,14 @@ class GameLogic {
         case 1:
           gameState.log.push(
             "You came across a spiritual fruit and gained " +
-              magnitude +
+              Math.ceil(
+                magnitude * Math.sqrt(CultivationSystem.getCombatPower())
+              ) +
               " vitality."
           );
-          gameState.vitality += magnitude;
+          gameState.vitality += Math.ceil(
+            magnitude * Math.sqrt(CultivationSystem.getCombatPower())
+          );
           break;
         case 2:
           magnitude = Math.ceil(magnitude / 2);
@@ -854,13 +859,15 @@ class GameLogic {
               CultivationSystem.getQiCapacity(),
               gameState.qi +
                 Math.ceil(
-                  magnitude * gameState.getCombatPower() * Math.random(10)
+                  magnitude *
+                    CultivationSystem.getCombatPower() *
+                    Math.random(10)
                 )
             );
           }
           break;
         case 5:
-          if (Math.random() < 0.1) {
+          if (Math.random() < 0.05 + Math.log(gameState.wisdom) / 50) {
             CultivationSystem.gainRandomDaoRune();
           }
           break;
