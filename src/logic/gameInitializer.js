@@ -56,6 +56,7 @@ export class GameInitializer {
 
     // Generate random stats
     this._generateOrganTalents();
+    this._generateChakraTalents();
     this._generateRandomStats();
     this._generateMeridianTalents();
     this._calculateStartAge();
@@ -179,6 +180,16 @@ export class GameInitializer {
    */
   static _generateOrganTalents() {
     gameState.organTalent = Array.from({ length: 5 }, () =>
+      Utility.rollOneDice(100, 1)
+    );
+  }
+
+  /**
+   * Generate chakra talents for chakra system
+   * @private
+   */
+  static _generateChakraTalents() {
+    gameState.chakraTalent = Array.from({ length: 5 }, () =>
       Utility.rollOneDice(100, 1)
     );
   }

@@ -64,6 +64,10 @@ export class GameLogic {
         gameState.highestDantian,
         gameState.dantianGrade
       );
+      gameState.highestChakra = Math.max(
+        gameState.highestChakra,
+        gameState.openedChakras
+      );
 
       // Record current life statistics
       gameState.currentLifeStats.meridiansOpenedAtDeath =

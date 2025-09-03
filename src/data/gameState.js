@@ -56,6 +56,10 @@ export function createInitialGameState() {
     dantianGrade: 0,
     dantianRerolls: 0,
 
+    // Chakra System
+    openedChakras: 0,
+    chakraTalent: [],
+
     // Game settings
     restartOnDeath: true,
     pauseState: false,
@@ -66,6 +70,7 @@ export function createInitialGameState() {
     highestMeridian: 0,
     highestQiFold: 0,
     highestDantian: 0,
+    highestChakra: 0,
     log: [],
     samsaraPoints: 0,
     seenBloodline: false,

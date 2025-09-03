@@ -135,6 +135,12 @@ export class UISystem {
       elements["highest qi folds"] = gameState.highestQiFold;
       elements["highest dantian grade"] = gameState.highestDantian;
       elements["average qi folds"] = gameState.averageLifeStats.qiFoldsAtDeath;
+
+      // Only show highest chakras if > 0
+      if (gameState.highestChakra > 0) {
+        elements["highest chakras"] = gameState.highestChakra;
+      }
+
       if (gameState.averageLifeStats.ageAt12thMeridian != null) {
         elements["average primary meridians"] =
           gameState.averageLifeStats.ageAt12thMeridian;
@@ -159,6 +165,7 @@ export class UISystem {
     if (gameState.highestMeridian < 12) {
       containerUpdates = [
         { id: "highest-qi-folds-container", show: false },
+        { id: "highest-chakras-container", show: false },
         { id: "comprehension-container", show: false },
         { id: "average-qi-folds-container", show: false },
         { id: "average-primary-meridians-container", show: false },
@@ -166,6 +173,7 @@ export class UISystem {
     } else {
       containerUpdates = [
         { id: "highest-qi-folds-container", show: true },
+        { id: "highest-chakras-container", show: gameState.highestChakra > 0 },
         { id: "comprehension-container", show: true },
         { id: "average-qi-folds-container", show: true },
         { id: "highest-meridian-container", show: false },
@@ -233,7 +241,12 @@ export class UISystem {
       elements["dantian grade"] = gameState.dantianGrade;
       elements["circulation skill"] = gameState.circulationSkill;
       elements["circulation grade"] = gameState.circulationGrade;
-      elements["acupoints"] = gameState.acupoints;
+
+      // Only show acupoints and chakras if dantian grade > 0
+      if (gameState.dantianGrade > 0) {
+        elements["acupoints"] = gameState.acupoints;
+        elements["chakras opened"] = gameState.openedChakras;
+      }
     }
 
     // Update all elements using optimized batch function
@@ -249,6 +262,14 @@ export class UISystem {
       { id: "comprehension-container", show: gameState.highestMeridian >= 12 },
       { id: "qi-capacity-container", show: gameState.meridiansOpened >= 12 },
       { id: "qi-folds-container", show: gameState.meridiansOpened >= 12 },
+      {
+        id: "acupoints-container",
+        show: gameState.meridiansOpened >= 12 && gameState.dantianGrade > 0,
+      },
+      {
+        id: "chakras-container",
+        show: gameState.meridiansOpened >= 12 && gameState.dantianGrade > 0,
+      },
       {
         id: "circulation-skill-container",
         show: gameState.meridiansOpened >= 12,

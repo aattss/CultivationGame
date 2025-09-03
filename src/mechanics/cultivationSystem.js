@@ -294,8 +294,25 @@ export class CultivationSystem {
       } else if (gameState.dantianGrade == 0) {
         this.formDantian();
       } else {
+        CultivationSystem.cultivateChakras();
         CultivationSystem.cultivateAcupoints();
       }
+    }
+  }
+
+  static cultivateChakras() {
+    let chakraCost = 0;
+    if (gameState.openedChakras == 7) {
+      return;
+    }
+    for (var i = 0; i <= gameState.openedChakras; i++) {
+      chakraCost += 50 * (150 - gameState.chakraTalent[i]);
+    }
+    if (gameState.qi > chakraCost) {
+      gameState.qi -= chakraCost;
+      gameState.openedChakras += 1;
+      gameState.comprehension += 1 + gameState.openedChakras;
+      gameState.wisdom += 1;
     }
   }
 
