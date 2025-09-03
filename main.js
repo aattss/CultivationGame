@@ -48,6 +48,7 @@ var gameState = {
   circulationInsights: 0,
   daoRunes: Array(9).fill(0),
   daoRuneMultiplier: 1,
+  enlightenment: 0,
 
   // Organ purification system
   organsPurified: 0,
@@ -120,7 +121,7 @@ var shopItems = {
   },
   meridianSecondReroll: {
     name: "Additional Meridian Reroll",
-    price: 500,
+    price: 650,
     condition: function () {
       return gameState.shopUpgrades.rerollMeridianTalent == 1;
     },
@@ -213,7 +214,7 @@ var shopItems = {
   },
   precociousOne: {
     name: "Start Cultivating Sooner",
-    price: 1000,
+    price: 450,
     condition: function () {
       return gameState.shopUpgrades.earlyStart == 0;
     },
@@ -223,7 +224,7 @@ var shopItems = {
   },
   precociousTwo: {
     name: "Start Cultivating Even Earlier",
-    price: 10000,
+    price: 5500,
     condition: function () {
       return gameState.shopUpgrades.earlyStart == 1;
     },
@@ -433,6 +434,7 @@ class GameInitializer {
       gameState.shopUpgrades.rerollWisdom
     );
     gameState.wisdom += Math.floor(Math.sqrt(gameState.totalYears / 100));
+    gameState.wisdom += gameState.enlightenment;
 
     gameState.luck = 0;
     let rolls = 1 + gameState.shopUpgrades.luckExtraRolls;
@@ -544,7 +546,6 @@ class CultivationSystem {
 
   static cultivateMeridians() {
     let failed = false;
-    //vitality
     let combo = 0;
     while (gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT && !failed) {
       const difficulty =
@@ -603,6 +604,15 @@ class CultivationSystem {
       gameState.circulationSkill += 1;
 
       if (
+        Math.random() * 500 * (gameState.enlightenment + 1) <
+        gameState.enlightenment - gameState.circulationGrade
+      ) {
+        gameState.enlightenment += 1;
+        gameState.circulationGrade = 1;
+        gameState.log.push(
+          "You had a glimpse of enlightenment and started over with your cultivaiton technique."
+        );
+      } else if (
         Math.random() * gameState.circulationGrade * 100 <
         gameState.wisdom * gameState.circulationSkill
       ) {
@@ -638,8 +648,8 @@ class CultivationSystem {
     gameState.qi -= qiTransferred;
     gameState.organProgress += qiTransferred * (1 + gameState.qiPurity / 100);
     const organDifficulty =
-      20 *
-      (300 +
+      10 *
+      (200 +
         100 * Math.pow(gameState.cyclesCleansed, 2) -
         gameState.vitality -
         (gameState.cyclesCleansed + 2) *
@@ -796,7 +806,7 @@ class GameLogic {
       Math.random() <
         Math.pow(
           CONSTANTS.QI_PURITY_DEGRADATION_BASE,
-          gameState.circulationProficiency +
+          gameState.circulationSkill +
             gameState.circulationGrade +
             gameState.cyclesCleansed
         )
@@ -856,7 +866,8 @@ class GameLogic {
         gameState.qiFolds * 4 +
         gameState.pillars * 2 +
         gameState.dantianGrade * 3 +
-        gameState.cyclesCleansed * 2;
+        gameState.cyclesCleansed * 2 +
+        Math.floor(gameState.acupoints / 100);
       gameState.samsaraPoints += pointGain;
     }
   }
