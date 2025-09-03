@@ -14,6 +14,7 @@ const CONSTANTS = {
   LUCKY_ENCOUNTER_TRIGGER: 0.1,
   QI_PURITY_DEGRADATION_BASE: 0.96,
   LOG_MAX_LENGTH: 1000,
+  PILLAR_QI_COST: 200,
 };
 
 // ===== GAME STATE =====
@@ -278,11 +279,11 @@ var shopItems = {
     condition: function () {
       return (
         gameState.shopUpgrades.dantianReroll == 0 &&
-        gameState.highestDantian < 0
+        gameState.highestDantian > 0
       );
     },
     effect: function () {
-      gameState.shopUpgrades.bloodlineReroll = 1;
+      gameState.shopUpgrades.dantianReroll = 1;
     },
   },
   dantianSecondReroll: {
@@ -292,7 +293,7 @@ var shopItems = {
       return gameState.shopUpgrades.dantianReroll == 1;
     },
     effect: function () {
-      gameState.shopUpgrades.bloodlineReroll = 2;
+      gameState.shopUpgrades.dantianReroll = 2;
     },
   },
 };
@@ -406,13 +407,7 @@ class GameInitializer {
     if (
       Utility.rollDice(100, 1, 1, gameState.shopUpgrades.daoRuneReroll) == 100
     ) {
-      gameState.log.push("You see a strange symbol in your dreams.");
-      gameState.daoRunes[Utility.rollOneDice(9, 1)] = 1;
-      gameState.daoRuneMultiplier = Math.pow(
-        2.5,
-        Utility.sum(gameState.daoRunes)
-      );
-      gameState.seenDaoRune = true;
+      CultivationSystem.gainRandomDaoRune();
     }
 
     // Comprehension with memory bonus
@@ -485,7 +480,7 @@ class GameInitializer {
   }
 
   static _generateOrganTalents() {
-    gameState.meridianTalent = Array.from({ length: 5 }, () =>
+    gameState.organTalent = Array.from({ length: 5 }, () =>
       Utility.rollOneDice(100, 1)
     );
   }
@@ -661,13 +656,13 @@ class CultivationSystem {
   }
 
   static formPillar() {
-    gameState.qi -= 200;
+    gameState.qi -= CONSTANTS.PILLAR_QI_COST;
     const success = Math.min(6, Math.random() * gameState.qiFolds);
     if (success > 2) {
       gameState.pillars += 1;
       gameState.vitality += Math.floor(success * 4);
       gameState.pillarQuality += Math.floor(success / 2);
-      if (gameState.pillars < 8 && gameState.qi >= 200) {
+      if (gameState.pillars < 8 && gameState.qi >= CONSTANTS.PILLAR_QI_COST) {
         CultivationSystem.formPillar();
       }
     } else {
@@ -729,7 +724,7 @@ class CultivationSystem {
       )
     );
     gameState.qi -= acupointCost * acupointsOpened;
-    gameState.acupointsOpened += acupointsOpened;
+    gameState.acupoints += acupointsOpened;
   }
 
   static cultivate() {
@@ -756,7 +751,7 @@ class CultivationSystem {
     }
 
     if (
-      gameState.qi > 200 &&
+      gameState.qi > CONSTANTS.PILLAR_QI_COST &&
       gameState.qi >= 0.95 * CultivationSystem.getQiCapacity()
     ) {
       if (gameState.pillars < 8) {
@@ -764,13 +759,19 @@ class CultivationSystem {
       } else if (gameState.dantianGrade == 0) {
         this.formDantian();
       } else {
-        gameState.cultivateAcupoints();
+        CultivationSystem.cultivateAcupoints();
       }
     }
   }
 
   static gainRandomDaoRune() {
-    CultivationSystem.gainRandomDaoRune();
+    gameState.log.push("You see a strange symbol in your dreams.");
+    gameState.daoRunes[Utility.rollOneDice(9, 0)] = 1;
+    gameState.daoRuneMultiplier = Math.pow(
+      2.5,
+      Utility.sum(gameState.daoRunes)
+    );
+    gameState.seenDaoRune = true;
   }
 }
 
@@ -795,7 +796,9 @@ class GameLogic {
       Math.random() <
         Math.pow(
           CONSTANTS.QI_PURITY_DEGRADATION_BASE,
-          gameState.circulationProficiency + gameState.circulationGrade
+          gameState.circulationProficiency +
+            gameState.circulationGrade +
+            gameState.cyclesCleansed
         )
     ) {
       gameState.qiPurity -= 1;
@@ -807,7 +810,7 @@ class GameLogic {
       gameState.age - gameState.shopUpgrades.youthfullness >
       gameState.qiPurity
     ) {
-      const loss = gameState.age / gameState.qiPurity;
+      const loss = gameState.age / Math.max(1, gameState.qiPurity);
       gameState.vitality -= Math.max(Math.ceil(Math.random() * loss - 0.5), 0);
     }
 
@@ -925,7 +928,7 @@ class GameLogic {
                 Math.ceil(
                   magnitude *
                     CultivationSystem.getCombatPower() *
-                    Math.random(10)
+                    Utility.rollOneDice(10)
                 )
             );
           }
@@ -942,37 +945,95 @@ class GameLogic {
 
 // ===== UI SYSTEM =====
 class UISystem {
+  static elementCache = new Map();
+  static lastValues = new Map();
+  static lastContainerStates = new Map();
+  static lastLogLength = 0;
+  static lastSamsaraPoints = null;
+
+  static getElement(elementId) {
+    if (!this.elementCache.has(elementId)) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        this.elementCache.set(elementId, element);
+      }
+    }
+    return this.elementCache.get(elementId);
+  }
+
   static toggleContainerVisibility(containerId, show) {
-    const container = document.getElementById(containerId);
+    // Skip if state hasn't changed
+    const lastState = this.lastContainerStates.get(containerId);
+    if (lastState === show) return;
+
+    const container = this.getElement(containerId);
     if (container) {
       container.style.display = show ? "block" : "none";
+      this.lastContainerStates.set(containerId, show);
     }
   }
 
   static updateElementContent(elementId, value) {
-    const element = document.getElementById(elementId);
+    // Skip if value hasn't changed
+    const lastValue = this.lastValues.get(elementId);
+    if (lastValue === value) return;
+
+    const element = this.getElement(elementId);
     if (element) {
       element.innerHTML = value;
+      this.lastValues.set(elementId, value);
     }
   }
 
   static updateMultipleElements(elements) {
+    // Batch DOM updates by collecting all changes first
+    const updates = [];
     Object.entries(elements).forEach(([id, value]) => {
-      this.updateElementContent(id, value);
+      const lastValue = this.lastValues.get(id);
+      if (lastValue !== value) {
+        const element = this.getElement(id);
+        if (element) {
+          updates.push({ element, value, id });
+        }
+      }
     });
+
+    // Apply all updates in a single batch
+    if (updates.length > 0) {
+      updates.forEach(({ element, value, id }) => {
+        element.innerHTML = value;
+        this.lastValues.set(id, value);
+      });
+    }
   }
 
   static toggleMultipleContainers(containerConfigs) {
+    // Batch container visibility changes
+    const changes = [];
     containerConfigs.forEach((config) => {
-      if (typeof config === "string") {
-        this.toggleContainerVisibility(config, true);
-      } else {
-        this.toggleContainerVisibility(config.id, config.show);
+      const containerId = typeof config === "string" ? config : config.id;
+      const show = typeof config === "string" ? true : config.show;
+
+      const lastState = this.lastContainerStates.get(containerId);
+      if (lastState !== show) {
+        const container = this.getElement(containerId);
+        if (container) {
+          changes.push({ container, show, containerId });
+        }
       }
+    });
+
+    // Apply all changes in batch
+    changes.forEach(({ container, show, containerId }) => {
+      container.style.display = show ? "block" : "none";
+      this.lastContainerStates.set(containerId, show);
     });
   }
 
   static refreshClientNewLife() {
+    // Clear cache for new life to ensure fresh state
+    this.clearCache();
+
     const elements = {
       "meridian talent": GameInitializer.getMeridianEstimate(),
       "average age": gameState.averageLifeStats.ageAtDeath,
@@ -998,56 +1059,54 @@ class UISystem {
       }
     }
 
-    // Update all elements using utility function
+    // Update all elements using optimized batch function
     this.updateMultipleElements(elements);
 
-    // Handle container visibility based on highest meridian
+    // Batch all container visibility updates
+    let containerUpdates = [];
+
     if (gameState.highestMeridian < 12) {
-      // Hide containers for advanced features
-      const containersToHide = [
+      containerUpdates = [
         { id: "highest-qi-folds-container", show: false },
         { id: "comprehension-container", show: false },
         { id: "average-qi-folds-container", show: false },
         { id: "average-primary-meridians-container", show: false },
       ];
-      this.toggleMultipleContainers(containersToHide);
     } else {
-      // Show containers for advanced features
-      const containersToShow = [
+      containerUpdates = [
         { id: "highest-qi-folds-container", show: true },
         { id: "comprehension-container", show: true },
         { id: "average-qi-folds-container", show: true },
+        { id: "highest-meridian-container", show: false },
       ];
 
       if (gameState.averageLifeStats.ageAt12thMeridian != null) {
-        containersToShow.push({
-          id: "average-primary-meridians-container",
-          show: true,
-        });
-      }
-
-      this.toggleMultipleContainers(containersToShow);
-
-      // Hide highest meridian container when showing advanced stats
-      this.toggleContainerVisibility("highest-meridian-container", false);
-
-      // Handle meridian average display logic
-      if (gameState.averageLifeStats.ageAt12thMeridian != null) {
-        this.toggleContainerVisibility("average-meridians-container", false);
-        this.toggleContainerVisibility(
-          "average-primary-meridians-container",
-          true
+        containerUpdates.push(
+          { id: "average-primary-meridians-container", show: true },
+          { id: "average-meridians-container", show: false }
         );
       } else {
-        this.toggleContainerVisibility(
-          "average-primary-meridians-container",
-          false
+        containerUpdates.push(
+          { id: "average-primary-meridians-container", show: false },
+          { id: "average-meridians-container", show: true }
         );
-        this.toggleContainerVisibility("average-meridians-container", true);
       }
     }
+
+    this.toggleMultipleContainers(containerUpdates);
   }
   static refreshClient() {
+    // Only update log if it has changed
+    let logUpdated = false;
+    if (gameState.log.length !== this.lastLogLength) {
+      // Trim log if it gets too long before updating
+      if (gameState.log.length > CONSTANTS.LOG_MAX_LENGTH) {
+        gameState.log.shift();
+      }
+      this.lastLogLength = gameState.log.length;
+      logUpdated = true;
+    }
+
     const elements = {
       age: gameState.age,
       "combat power": CultivationSystem.getCombatPower() || 0,
@@ -1057,9 +1116,13 @@ class UISystem {
       wisdom: gameState.wisdom,
       luck: gameState.luck,
       "samsara-points": gameState.samsaraPoints,
-      log: gameState.log.join("\r\n"),
       "qi purity": gameState.qiPurity,
     };
+
+    // Only update log if it actually changed
+    if (logUpdated) {
+      elements["log"] = gameState.log.join("\r\n");
+    }
 
     // Only show comprehension if highest meridian >= 12
     if (gameState.highestMeridian >= 12) {
@@ -1078,35 +1141,17 @@ class UISystem {
       elements["acupoints"] = gameState.acupoints;
     }
 
-    // Update all elements using utility function
+    // Update all elements using optimized batch function
     this.updateMultipleElements(elements);
 
-    this.toggleContainerVisibility(
-      "vitality-container",
-      gameState.totalLives > 2
-    );
-    this.toggleContainerVisibility(
-      "meridian-talent-container",
-      gameState.totalLives > 8
-    );
-    this.toggleContainerVisibility(
-      "wisdom-container",
-      gameState.totalLives > 14
-    );
-    this.toggleContainerVisibility("luck-container", gameState.totalLives > 20);
-    this.toggleContainerVisibility(
-      "qi-purity-container",
-      gameState.totalLives > 40
-    );
-
-    // Handle comprehension container visibility based on highest meridian
-    this.toggleContainerVisibility(
-      "comprehension-container",
-      gameState.highestMeridian >= 12
-    );
-
-    // Handle advanced cultivation containers based on meridians opened
-    const advancedContainers = [
+    // Batch all container visibility updates
+    const containerUpdates = [
+      { id: "vitality-container", show: gameState.totalLives > 2 },
+      { id: "meridian-talent-container", show: gameState.totalLives > 8 },
+      { id: "wisdom-container", show: gameState.totalLives > 14 },
+      { id: "luck-container", show: gameState.totalLives > 20 },
+      { id: "qi-purity-container", show: gameState.totalLives > 40 },
+      { id: "comprehension-container", show: gameState.highestMeridian >= 12 },
       { id: "qi-capacity-container", show: gameState.meridiansOpened >= 12 },
       { id: "qi-folds-container", show: gameState.meridiansOpened >= 12 },
       {
@@ -1114,15 +1159,25 @@ class UISystem {
         show: gameState.meridiansOpened >= 12,
       },
     ];
-    this.toggleMultipleContainers(advancedContainers);
 
-    // Trim log if it gets too long
-    if (gameState.log.length > CONSTANTS.LOG_MAX_LENGTH) {
-      gameState.log.shift();
+    this.toggleMultipleContainers(containerUpdates);
+
+    // Update upgrade shop less frequently to improve performance
+    // Only update shop when samsara points change or when needed
+    const currentPoints = gameState.samsaraPoints;
+    if (!this.lastSamsaraPoints || this.lastSamsaraPoints !== currentPoints) {
+      this.refreshUpgradeShop();
+      this.lastSamsaraPoints = currentPoints;
     }
+  }
 
-    // Update upgrade shop
-    this.refreshUpgradeShop();
+  static clearCache() {
+    // Clear all caches when game resets or significant changes occur
+    this.elementCache.clear();
+    this.lastValues.clear();
+    this.lastContainerStates.clear();
+    this.lastLogLength = 0;
+    this.lastSamsaraPoints = null;
   }
 
   static refreshUpgradeShop() {
@@ -1179,14 +1234,14 @@ class UISystem {
     // Apply upgrade effect
     upgrade.effect();
 
-    // Refresh the shop and other UI elements
+    // Force shop refresh since conditions may have changed
     this.refreshUpgradeShop();
-    this.refreshClient();
+    this.lastSamsaraPoints = gameState.samsaraPoints;
 
     // Save game state
     gameSave();
 
-    // Log the purchase
+    // Log the purchase - this will trigger a refresh on next tick
     gameState.log.push(`Purchased upgrade: ${upgrade.name}`);
   }
 }
@@ -1219,7 +1274,13 @@ function gameSave() {
 }
 
 function gameLoad() {
-  return JSON.parse(localStorage.getItem("autosave"));
+  try {
+    const save = JSON.parse(localStorage.getItem("autosave"));
+    return save;
+  } catch (error) {
+    console.error("Failed to load save:", error);
+  }
+  return null;
 }
 
 // ===== GAME INITIALIZATION AND START =====
