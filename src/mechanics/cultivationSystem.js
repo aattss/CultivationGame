@@ -183,16 +183,16 @@ export class CultivationSystem {
    */
   static formPillar() {
     gameState.qi -= CONSTANTS.PILLAR_QI_COST;
-    const success = Math.min(6, Math.random() * gameState.qiFolds);
+    const success = Math.min(9, Math.random() * gameState.qiFolds);
     if (success > 2) {
       gameState.pillars += 1;
       gameState.vitality += Math.floor(success * 4);
-      gameState.pillarQuality += Math.floor(success / 2);
+      gameState.pillarQuality += Math.floor(success / 3);
       if (gameState.pillars < 8 && gameState.qi >= CONSTANTS.PILLAR_QI_COST) {
         CultivationSystem.formPillar();
       }
     } else {
-      gameState.vitality -= Utility.rollOneDice(8, 1);
+      gameState.vitality -= Utility.rollOneDice(16, 7);
     }
   }
 
@@ -200,8 +200,8 @@ export class CultivationSystem {
    * Form a dantian with accumulated pillars
    */
   static formDantian() {
-    let difficulty = Utility.rollOneDice(2 * gameState.dantianGrade + 14, 1);
-    let cost = 50 * gameState.dantianGrade;
+    let difficulty = Utility.rollOneDice(3 * gameState.dantianGrade + 16, 1);
+    let cost = 100 * gameState.dantianGrade;
     const foundation = gameState.pillarQuality + gameState.qiFolds;
     while (
       gameState.dantianRerolls > 0 &&
@@ -210,7 +210,7 @@ export class CultivationSystem {
         foundation
     ) {
       gameState.dantianRerolls -= 1;
-      difficulty = Utility.rollOneDice(2 * gameState.dantianGrade + 14, 1);
+      difficulty = Utility.rollOneDice(3 * gameState.dantianGrade + 16, 1);
     }
     while (
       gameState.qi > cost &&
@@ -229,7 +229,7 @@ export class CultivationSystem {
     }
     if (gameState.dantianGrade == 0) {
       gameState.log.push("You failed to form a dantian.");
-      gameState.vitality -= Utility.rollOneDice(10, 3);
+      gameState.vitality -= Utility.rollOneDice(40, 7);
       gameState.qi -= gameState.qi * Math.random() * 0.8;
     } else {
       gameState.qiPurity += gameState.dantianGrade * 3;
