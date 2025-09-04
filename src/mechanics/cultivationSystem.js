@@ -25,10 +25,9 @@ export class CultivationSystem {
    */
   static getCombatPower() {
     const combatPower =
-      Math.max(0, Math.log10(gameState.vitality) / 10) +
-      Math.max(0, Math.log10(this.getQiCapacity()) / Math.log(5)) +
-      gameState.qiFolds +
-      gameState.pillarQuality / 12 +
+      Math.max(0, Math.log(gameState.vitality) / Math.log(7)) +
+      Math.max(0, Math.log10(gameState.qi)) +
+      gameState.qiFolds / 1.5 +
       gameState.dantianGrade / 4;
     return Math.round(combatPower * 10) / 10;
   }
@@ -248,7 +247,10 @@ export class CultivationSystem {
    * Cultivate acupoints to increase qi capacity
    */
   static cultivateAcupoints() {
-    const acupointCost = 100 + gameState.acupoints;
+    const acupointCost = Math.max(
+      1,
+      150 + gameState.acupoints - Math.pow(gameState.qiFolds, 2)
+    );
     const acupointsOpened = Math.floor(
       Math.min(
         gameState.qi / acupointCost / 3,

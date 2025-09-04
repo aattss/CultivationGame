@@ -24,6 +24,7 @@ export class GameLogic {
     if (Math.random() < CONSTANTS.LUCKY_ENCOUNTER_TRIGGER) {
       GameLogic.LuckyEncounter();
     }
+    GameLogic.tribulation();
 
     // Qi purity degradation
     if (
@@ -67,6 +68,10 @@ export class GameLogic {
       gameState.highestChakra = Math.max(
         gameState.highestChakra,
         gameState.openedChakras
+      );
+      gameState.highestCycle = Math.max(
+        gameState.highestCycle,
+        gameState.cyclesCleansed
       );
 
       // Record current life statistics
@@ -185,6 +190,56 @@ export class GameLogic {
           }
           break;
       }
+    }
+  }
+
+  static tribulation() {
+    const curPower = CultivationSystem.getCombatPower();
+    switch (gameState.age) {
+      case 60:
+        if (curPower < Math.random() * 4) {
+          gameState.vitality -= 7;
+        }
+        // eslint-disable-next-line no-dupe-else-if
+        else if (curPower < Math.random() * 4) {
+          gameState.vitality -= 4;
+        } else if (curPower > Math.random() * 6) {
+          gameState.samsaraPoints += 2;
+        }
+        if (gameState.vitality <= 0) {
+          gameState.log.push(
+            "At age 60, your village was robbed by bandits and you died."
+          );
+        }
+        break;
+      case 120:
+        if (curPower < Math.random() * 9) {
+          gameState.vitality -= 41;
+          // eslint-disable-next-line no-dupe-else-if
+        } else if (curPower < Math.random() * 9) {
+          gameState.vitality -= 23;
+        } else if (curPower > Math.random() * 12) {
+          gameState.samsaraPoints += 6;
+        }
+        if (gameState.vitality <= 0) {
+          gameState.log.push("At age 120, a demonic beast slew you.");
+        }
+        break;
+      case 180:
+        if (curPower < Math.random() * 14) {
+          gameState.vitality -= 223;
+        }
+        // eslint-disable-next-line no-dupe-else-if
+        else if (curPower < Math.random() * 14) {
+          gameState.vitality -= 111;
+        } else if (curPower > Math.random() * 18) {
+          gameState.samsaraPoints += 24;
+        }
+        if (gameState.vitality <= 0) {
+          gameState.log.push("At age 180, a demonic cultivator slew you.");
+        }
+        break;
+      default:
     }
   }
 }

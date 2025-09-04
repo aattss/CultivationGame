@@ -28,7 +28,8 @@ export class GameInitializer {
     gameState.meridianCapacity = 0;
     gameState.meridiansOpened = 0;
     gameState.qi = 0;
-    gameState.qiPurity = CONSTANTS.BASE_QI_PURITY;
+    gameState.qiPurity =
+      CONSTANTS.BASE_QI_PURITY + Utility.rollOneDice(gameState.highestQiFold);
     gameState.circulationSkill = 0;
     gameState.circulationProficiency = 0;
     gameState.qiFolds = 0;
@@ -81,7 +82,7 @@ export class GameInitializer {
       gameState.shopUpgrades.rerollVitality
     );
     gameState.vitality += Utility.rollOneDice(gameState.highestMeridian / 6);
-    gameState.vitality += Utility.rollOneDice(gameState.highestQiFold / 3);
+    gameState.vitality += Utility.rollOneDice(gameState.highestCycle);
 
     if (
       Utility.rollDice(100, 1, 1, gameState.shopUpgrades.bloodlineReroll) == 100
@@ -114,6 +115,10 @@ export class GameInitializer {
         );
       }
     }
+    gameState.comprehension += Utility.rollOneDice(
+      gameState.highestMeridian,
+      0
+    );
 
     // Wisdom with experience bonus
     gameState.wisdom = Utility.rollDice(

@@ -71,6 +71,7 @@ export function createInitialGameState() {
     highestQiFold: 0,
     highestDantian: 0,
     highestChakra: 0,
+    highestCycle: 0,
     log: [],
     samsaraPoints: 0,
     seenBloodline: false,
