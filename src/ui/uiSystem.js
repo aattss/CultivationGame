@@ -358,11 +358,19 @@ export class UISystem {
 
     upgradeList.innerHTML = "";
 
-    upgrades.forEach(([key, upgrade]) => {
+    let displayedCount = 0;
+    const maxDisplayed = 4;
+
+    for (const [key, upgrade] of upgrades) {
+      // Stop if we've already displayed 4 upgrades
+      if (displayedCount >= maxDisplayed) {
+        break;
+      }
+
       // Check if upgrade should be available based on condition
       const isAvailable = upgrade.condition();
       if (!isAvailable) {
-        return;
+        continue;
       }
 
       // Check if player can afford it
@@ -386,7 +394,8 @@ export class UISystem {
       }
 
       upgradeList.appendChild(upgradeButton);
-    });
+      displayedCount++;
+    }
   }
 
   /**
