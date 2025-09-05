@@ -119,80 +119,144 @@ export class UISystem {
   }
 
   /**
+   * Check if an element is in a visible container
+   * @param {string} elementId - The element ID to check
+   * @param {Set} visibleContainers - Set of visible container IDs
+   * @returns {boolean} True if element is in a visible container or no container mapping exists
+   */
+  static isElementInVisibleContainer(elementId, visibleContainers) {
+    const containerMapping = this.getElementContainerMapping();
+    const containerId = containerMapping[elementId];
+    return !containerId || visibleContainers.has(containerId);
+  }
+
+  /**
+   * Get mapping of element IDs to their container IDs
+   * @returns {Object} Mapping of element IDs to container IDs
+   */
+  static getElementContainerMapping() {
+    return {
+      "meridian talent": "meridian-talent-container",
+      "average age": null, // Always visible
+      "highest qi folds": "highest-qi-folds-container",
+      "highest dantian grade": null, // Part of advanced stats, controlled by logic
+      "average qi folds": "average-qi-folds-container",
+      "highest chakras": "highest-chakras-container",
+      "average primary meridians": "average-primary-meridians-container",
+      "average meridians": "average-meridians-container",
+      "highest meridian": "highest-meridian-container",
+      age: null, // Always visible
+      "combat power": null, // Always visible
+      qi: null, // Always visible
+      "meridian opened": null, // Always visible
+      vitality: "vitality-container",
+      wisdom: "wisdom-container",
+      luck: "luck-container",
+      "samsara-points": null, // Always visible
+      "qi purity": "qi-purity-container",
+      log: null, // Always visible
+      comprehension: "comprehension-container",
+      "qi capacity": "qi-capacity-container",
+      "qi folds": "qi-folds-container",
+      "cycles cleansed": "qi-capacity-container", // Same container as qi capacity
+      pillars: "qi-capacity-container", // Same container as qi capacity
+      "dantian grade": "qi-capacity-container", // Same container as qi capacity
+      "circulation skill": "circulation-skill-container",
+      "circulation grade": "circulation-skill-container", // Same container as circulation skill
+      acupoints: "acupoints-container",
+      "chakras opened": "chakras-container",
+    };
+  }
+
+  /**
+   * Unified UI update that consolidates element updates and container visibility
+   * @param {Object} config - Configuration object with elements and containers
+   */
+  static updateUIWithConsolidatedLogic(config) {
+    const { elementUpdates, containerStates } = config;
+
+    // Create set of visible containers for filtering
+    const visibleContainers = new Set();
+    Object.entries(containerStates).forEach(([containerId, show]) => {
+      if (show) {
+        visibleContainers.add(containerId);
+      }
+    });
+
+    // Update containers first
+    const containerConfigs = Object.entries(containerStates).map(
+      ([id, show]) => ({ id, show })
+    );
+    this.toggleMultipleContainers(containerConfigs);
+
+    // Update elements, filtering by visible containers
+    this.updateMultipleElements(elementUpdates, visibleContainers);
+  }
+
+  /**
    * Refresh UI for a new life - shows overview statistics
    */
   static refreshClientNewLife() {
     // Clear cache for new life to ensure fresh state
     this.clearCache();
 
-    const elements = {
+    // Consolidated logic: determine visibility states and element values together
+    const isAdvancedPlayer = gameState.highestMeridian >= 12;
+    const hasChakras = gameState.highestChakra > 0;
+    const hasAgeAt12thMeridian =
+      gameState.averageLifeStats.ageAt12thMeridian != null;
+
+    // Prepare all element updates
+    const elementUpdates = {
       "meridian talent": GameInitializer.getMeridianEstimate(),
       "average age": gameState.averageLifeStats.ageAtDeath,
     };
 
-    // Only show these elements if highest meridian >= 12
-    if (gameState.highestMeridian >= 12) {
-      elements["highest qi folds"] = gameState.highestQiFold;
-      elements["highest dantian grade"] = gameState.highestDantian;
-      elements["average qi folds"] = gameState.averageLifeStats.qiFoldsAtDeath;
+    // Add conditional elements based on consolidated logic
+    if (isAdvancedPlayer) {
+      elementUpdates["highest qi folds"] = gameState.highestQiFold;
+      elementUpdates["highest dantian grade"] = gameState.highestDantian;
+      elementUpdates["average qi folds"] =
+        gameState.averageLifeStats.qiFoldsAtDeath;
 
-      // Only show highest chakras if > 0
-      if (gameState.highestChakra > 0) {
-        elements["highest chakras"] = gameState.highestChakra;
+      if (hasChakras) {
+        elementUpdates["highest chakras"] = gameState.highestChakra;
       }
 
-      if (gameState.averageLifeStats.ageAt12thMeridian != null) {
-        elements["average primary meridians"] =
+      if (hasAgeAt12thMeridian) {
+        elementUpdates["average primary meridians"] =
           gameState.averageLifeStats.ageAt12thMeridian;
       } else {
-        elements["average meridians"] =
+        elementUpdates["average meridians"] =
           gameState.averageLifeStats.meridiansOpenedAtDeath;
       }
     } else {
-      elements["highest meridian"] = gameState.highestMeridian;
-      if (gameState.averageLifeStats.ageAt12thMeridian == null) {
-        elements["average meridians"] =
+      elementUpdates["highest meridian"] = gameState.highestMeridian;
+      if (!hasAgeAt12thMeridian) {
+        elementUpdates["average meridians"] =
           gameState.averageLifeStats.meridiansOpenedAtDeath;
       }
     }
 
-    // Update all elements using optimized batch function
-    this.updateMultipleElements(elements);
+    // Prepare container states using the same consolidated logic
+    const containerStates = {
+      "highest-qi-folds-container": isAdvancedPlayer,
+      "highest-chakras-container": isAdvancedPlayer && hasChakras,
+      "comprehension-container": isAdvancedPlayer,
+      "average-qi-folds-container": isAdvancedPlayer,
+      "average-primary-meridians-container":
+        isAdvancedPlayer && hasAgeAt12thMeridian,
+      "highest-meridian-container": !isAdvancedPlayer,
+      "average-meridians-container":
+        (!isAdvancedPlayer && !hasAgeAt12thMeridian) ||
+        (isAdvancedPlayer && !hasAgeAt12thMeridian),
+    };
 
-    // Batch all container visibility updates
-    let containerUpdates = [];
-
-    if (gameState.highestMeridian < 12) {
-      containerUpdates = [
-        { id: "highest-qi-folds-container", show: false },
-        { id: "highest-chakras-container", show: false },
-        { id: "comprehension-container", show: false },
-        { id: "average-qi-folds-container", show: false },
-        { id: "average-primary-meridians-container", show: false },
-      ];
-    } else {
-      containerUpdates = [
-        { id: "highest-qi-folds-container", show: true },
-        { id: "highest-chakras-container", show: gameState.highestChakra > 0 },
-        { id: "comprehension-container", show: true },
-        { id: "average-qi-folds-container", show: true },
-        { id: "highest-meridian-container", show: false },
-      ];
-
-      if (gameState.averageLifeStats.ageAt12thMeridian != null) {
-        containerUpdates.push(
-          { id: "average-primary-meridians-container", show: true },
-          { id: "average-meridians-container", show: false }
-        );
-      } else {
-        containerUpdates.push(
-          { id: "average-primary-meridians-container", show: false },
-          { id: "average-meridians-container", show: true }
-        );
-      }
-    }
-
-    this.toggleMultipleContainers(containerUpdates);
+    // Use consolidated update method
+    this.updateUIWithConsolidatedLogic({
+      elementUpdates,
+      containerStates,
+    });
   }
 
   /**
