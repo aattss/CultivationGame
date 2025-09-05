@@ -2,7 +2,6 @@ import { CONSTANTS } from "../config/constants.js";
 import { gameState } from "../data/gameState.js";
 import { shopItems } from "../data/shopItems.js";
 import { CultivationSystem } from "../mechanics/cultivationSystem.js";
-import { GameInitializer } from "../logic/gameInitializer.js";
 import { gameSave } from "../core/persistence.js";
 import type {
   ElementCache,
@@ -10,6 +9,7 @@ import type {
   ContainerStateCache,
   ShopItem,
 } from "../types/gameTypes.js";
+import { Utility } from "../utils/utility.js";
 
 /**
  * UI System
@@ -239,10 +239,11 @@ export class UISystem {
     const hasChakras = gameState.highestChakra > 0;
     const hasAgeAt12thMeridian =
       gameState.averageLifeStats.ageAt12thMeridian != null;
+    const showMeridianTalent = gameState.totalLives > 8;
 
     // Prepare ALL element updates - no conditional logic here
     const elementUpdates: Record<string, string | number> = {
-      "meridian talent": GameInitializer.getMeridianEstimate(),
+      "meridian talent": Utility.getPotentialEstimate(gameState.meridianTalent),
       "average age": gameState.averageLifeStats.ageAtDeath,
       "highest qi folds": gameState.highestQiFold,
       "highest dantian grade": gameState.highestDantian,
@@ -256,6 +257,7 @@ export class UISystem {
 
     // Prepare container states using the same consolidated logic
     const containerStates: Record<string, boolean> = {
+      "meridian-talent-container": showMeridianTalent,
       "highest-qi-folds-container": isAdvancedPlayer,
       "highest-chakras-container": isAdvancedPlayer && hasChakras,
       "comprehension-container": isAdvancedPlayer,
@@ -295,7 +297,6 @@ export class UISystem {
     const hasComprehension = gameState.highestMeridian >= 12;
     const hasAdvancedDantian = gameState.dantianGrade > 0;
     const showVitality = gameState.totalLives > 2;
-    const showMeridianTalent = gameState.totalLives > 8;
     const showWisdom = gameState.totalLives > 14;
     const showLuck = gameState.totalLives > 20;
     const showQiPurity = gameState.totalLives > 40;
@@ -331,7 +332,6 @@ export class UISystem {
     // Container visibility controls what gets displayed - this is the ONLY conditional logic
     const containerStates: Record<string, boolean> = {
       "vitality-container": showVitality,
-      "meridian-talent-container": showMeridianTalent,
       "wisdom-container": showWisdom,
       "luck-container": showLuck,
       "qi-purity-container": showQiPurity,

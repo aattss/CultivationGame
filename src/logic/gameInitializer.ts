@@ -224,15 +224,4 @@ export class GameInitializer {
       GameLogic.oneYearPass(false);
     }
   }
-
-  /**
-   * Get an estimate of meridian opening potential
-   * @returns Estimated meridian performance
-   */
-  static getMeridianEstimate(): number {
-    var min = Math.min.apply(null, gameState.meridianTalent);
-    var average =
-      Utility.sum(gameState.meridianTalent) / CONSTANTS.MERIDIAN_COUNT;
-    return Math.floor((min + average) / 2);
-  }
 }

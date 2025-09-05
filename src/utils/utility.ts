@@ -70,4 +70,13 @@ export class Utility {
       0
     );
   }
+
+  static getPotentialEstimate(array: number[]): number {
+    if (!array || array.length === 0) {
+      return 0;
+    }
+    var min = Math.min.apply(null, array);
+    var average = Utility.sum(array) / array.length;
+    return Math.floor((min + average) / 2);
+  }
 }
