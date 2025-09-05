@@ -66,13 +66,22 @@ export class UISystem {
   }
 
   /**
-   * Update multiple elements in a single batch operation
+   * Update multiple elements in a single batch operation, optionally filtering by visible containers
    * @param {Object} elements - Object mapping element IDs to new values
+   * @param {Set} visibleContainers - Optional set of visible container IDs to filter updates
    */
-  static updateMultipleElements(elements) {
+  static updateMultipleElements(elements, visibleContainers = null) {
     // Batch DOM updates by collecting all changes first
     const updates = [];
     Object.entries(elements).forEach(([id, value]) => {
+      // Skip updates for elements in hidden containers if filtering is enabled
+      if (
+        visibleContainers &&
+        !this.isElementInVisibleContainer(id, visibleContainers)
+      ) {
+        return;
+      }
+
       const lastValue = this.lastValues.get(id);
       if (lastValue !== value) {
         const element = this.getElement(id);
@@ -206,37 +215,18 @@ export class UISystem {
     const hasAgeAt12thMeridian =
       gameState.averageLifeStats.ageAt12thMeridian != null;
 
-    // Prepare all element updates
+    // Prepare ALL element updates - no conditional logic here
     const elementUpdates = {
       "meridian talent": GameInitializer.getMeridianEstimate(),
       "average age": gameState.averageLifeStats.ageAtDeath,
+      "highest qi folds": gameState.highestQiFold,
+      "highest dantian grade": gameState.highestDantian,
+      "average qi folds": gameState.averageLifeStats.qiFoldsAtDeath,
+      "highest chakras": gameState.highestChakra,
+      "average primary meridians": gameState.averageLifeStats.ageAt12thMeridian,
+      "average meridians": gameState.averageLifeStats.meridiansOpenedAtDeath,
+      "highest meridian": gameState.highestMeridian,
     };
-
-    // Add conditional elements based on consolidated logic
-    if (isAdvancedPlayer) {
-      elementUpdates["highest qi folds"] = gameState.highestQiFold;
-      elementUpdates["highest dantian grade"] = gameState.highestDantian;
-      elementUpdates["average qi folds"] =
-        gameState.averageLifeStats.qiFoldsAtDeath;
-
-      if (hasChakras) {
-        elementUpdates["highest chakras"] = gameState.highestChakra;
-      }
-
-      if (hasAgeAt12thMeridian) {
-        elementUpdates["average primary meridians"] =
-          gameState.averageLifeStats.ageAt12thMeridian;
-      } else {
-        elementUpdates["average meridians"] =
-          gameState.averageLifeStats.meridiansOpenedAtDeath;
-      }
-    } else {
-      elementUpdates["highest meridian"] = gameState.highestMeridian;
-      if (!hasAgeAt12thMeridian) {
-        elementUpdates["average meridians"] =
-          gameState.averageLifeStats.meridiansOpenedAtDeath;
-      }
-    }
 
     // Prepare container states using the same consolidated logic
     const containerStates = {
@@ -274,7 +264,18 @@ export class UISystem {
       logUpdated = true;
     }
 
-    const elements = {
+    // Consolidated logic: determine all visibility states once
+    const hasAdvancedMeridians = gameState.meridiansOpened >= 12;
+    const hasComprehension = gameState.highestMeridian >= 12;
+    const hasAdvancedDantian = gameState.dantianGrade > 0;
+    const showVitality = gameState.totalLives > 2;
+    const showMeridianTalent = gameState.totalLives > 8;
+    const showWisdom = gameState.totalLives > 14;
+    const showLuck = gameState.totalLives > 20;
+    const showQiPurity = gameState.totalLives > 40;
+
+    // Prepare ALL element updates - no conditional logic here
+    const elementUpdates = {
       age: gameState.age,
       "combat power": CultivationSystem.getCombatPower() || 0,
       qi: gameState.qi,
@@ -284,63 +285,43 @@ export class UISystem {
       luck: gameState.luck,
       "samsara-points": gameState.samsaraPoints,
       "qi purity": gameState.qiPurity,
+      comprehension: gameState.comprehension,
+      "qi capacity": CultivationSystem.getQiCapacity(),
+      "qi folds": gameState.qiFolds,
+      "cycles cleansed": gameState.cyclesCleansed,
+      pillars: gameState.pillars,
+      "dantian grade": gameState.dantianGrade,
+      "circulation skill": gameState.circulationSkill,
+      "circulation grade": gameState.circulationGrade,
+      acupoints: gameState.acupoints,
+      "chakras opened": gameState.openedChakras,
     };
 
     // Only update log if it actually changed
     if (logUpdated) {
-      elements["log"] = gameState.log.join("\r\n");
+      elementUpdates["log"] = gameState.log.join("\r\n");
     }
 
-    // Only show comprehension if highest meridian >= 12
-    if (gameState.highestMeridian >= 12) {
-      elements["comprehension"] = gameState.comprehension;
-    }
+    // Container visibility controls what gets displayed - this is the ONLY conditional logic
+    const containerStates = {
+      "vitality-container": showVitality,
+      "meridian-talent-container": showMeridianTalent,
+      "wisdom-container": showWisdom,
+      "luck-container": showLuck,
+      "qi-purity-container": showQiPurity,
+      "comprehension-container": hasComprehension,
+      "qi-capacity-container": hasAdvancedMeridians,
+      "qi-folds-container": hasAdvancedMeridians,
+      "acupoints-container": hasAdvancedMeridians && hasAdvancedDantian,
+      "chakras-container": hasAdvancedMeridians && hasAdvancedDantian,
+      "circulation-skill-container": hasAdvancedMeridians,
+    };
 
-    // Only show these elements if meridians opened >= 12
-    if (gameState.meridiansOpened >= 12) {
-      elements["qi capacity"] = CultivationSystem.getQiCapacity();
-      elements["qi folds"] = gameState.qiFolds;
-      elements["cycles cleansed"] = gameState.cyclesCleansed;
-      elements["pillars"] = gameState.pillars;
-      elements["dantian grade"] = gameState.dantianGrade;
-      elements["circulation skill"] = gameState.circulationSkill;
-      elements["circulation grade"] = gameState.circulationGrade;
-
-      // Only show acupoints and chakras if dantian grade > 0
-      if (gameState.dantianGrade > 0) {
-        elements["acupoints"] = gameState.acupoints;
-        elements["chakras opened"] = gameState.openedChakras;
-      }
-    }
-
-    // Update all elements using optimized batch function
-    this.updateMultipleElements(elements);
-
-    // Batch all container visibility updates
-    const containerUpdates = [
-      { id: "vitality-container", show: gameState.totalLives > 2 },
-      { id: "meridian-talent-container", show: gameState.totalLives > 8 },
-      { id: "wisdom-container", show: gameState.totalLives > 14 },
-      { id: "luck-container", show: gameState.totalLives > 20 },
-      { id: "qi-purity-container", show: gameState.totalLives > 40 },
-      { id: "comprehension-container", show: gameState.highestMeridian >= 12 },
-      { id: "qi-capacity-container", show: gameState.meridiansOpened >= 12 },
-      { id: "qi-folds-container", show: gameState.meridiansOpened >= 12 },
-      {
-        id: "acupoints-container",
-        show: gameState.meridiansOpened >= 12 && gameState.dantianGrade > 0,
-      },
-      {
-        id: "chakras-container",
-        show: gameState.meridiansOpened >= 12 && gameState.dantianGrade > 0,
-      },
-      {
-        id: "circulation-skill-container",
-        show: gameState.meridiansOpened >= 12,
-      },
-    ];
-
-    this.toggleMultipleContainers(containerUpdates);
+    // Use consolidated update method
+    this.updateUIWithConsolidatedLogic({
+      elementUpdates,
+      containerStates,
+    });
 
     // Update upgrade shop less frequently to improve performance
     // Only update shop when samsara points change or when needed
