@@ -197,12 +197,19 @@ export class GameLogic {
     const curPower = CultivationSystem.getCombatPower();
     switch (gameState.age) {
       case 60:
-        if (curPower < Math.random() * 4) {
+        if (
+          curPower <
+          Math.random() * 5 - Math.log10(gameState.tribulationFailed[0])
+        ) {
+          gameState.vitality -= 12;
+          gameState.tribulationFailed[0] += 1;
+        } else if (
+          // eslint-disable-next-line no-dupe-else-if
+          curPower <
+          Math.random() * 5 - Math.log10(gameState.tribulationFailed[0])
+        ) {
           gameState.vitality -= 7;
-        }
-        // eslint-disable-next-line no-dupe-else-if
-        else if (curPower < Math.random() * 4) {
-          gameState.vitality -= 4;
+          gameState.tribulationFailed[0] += 1;
         } else if (curPower > Math.random() * 6) {
           gameState.samsaraPoints += 2;
         }
@@ -213,11 +220,19 @@ export class GameLogic {
         }
         break;
       case 120:
-        if (curPower < Math.random() * 9) {
+        if (
+          curPower <
+          3 + Math.random() * 7 - Math.log10(gameState.tribulationFailed[1])
+        ) {
           gameState.vitality -= 41;
+          gameState.tribulationFailed[1] += 1;
+        } else if (
           // eslint-disable-next-line no-dupe-else-if
-        } else if (curPower < Math.random() * 9) {
+          curPower <
+          3 + Math.random() * 7 - Math.log10(gameState.tribulationFailed[1])
+        ) {
           gameState.vitality -= 23;
+          gameState.tribulationFailed[1] += 1;
         } else if (curPower > Math.random() * 12) {
           gameState.samsaraPoints += 6;
         }
@@ -226,13 +241,20 @@ export class GameLogic {
         }
         break;
       case 180:
-        if (curPower < Math.random() * 14) {
+        if (
+          curPower <
+          5 + Math.random() * 11 - Math.log10(gameState.tribulationFailed[2])
+        ) {
           gameState.vitality -= 223;
-        }
-        // eslint-disable-next-line no-dupe-else-if
-        else if (curPower < Math.random() * 14) {
+          gameState.tribulationFailed[2] += 1;
+        } else if (
+          // eslint-disable-next-line no-dupe-else-if
+          curPower <
+          5 + Math.random() * 11 - Math.log10(gameState.tribulationFailed[2])
+        ) {
           gameState.vitality -= 111;
-        } else if (curPower > Math.random() * 18) {
+          gameState.tribulationFailed[2] += 1;
+        } else if (curPower > 5 + Math.random() * 15) {
           gameState.samsaraPoints += 24;
         }
         if (gameState.vitality <= 0) {

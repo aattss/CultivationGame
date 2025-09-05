@@ -182,11 +182,11 @@ export class CultivationSystem {
    */
   static formPillar() {
     gameState.qi -= CONSTANTS.PILLAR_QI_COST;
-    const success = Math.min(9, Math.random() * gameState.qiFolds);
+    const success = Math.min(6, Math.random() * gameState.qiFolds);
     if (success > 2) {
       gameState.pillars += 1;
       gameState.vitality += Math.floor(success * 4);
-      gameState.pillarQuality += Math.floor(success / 3);
+      gameState.pillarQuality += Math.floor(success / 2);
       if (gameState.pillars < 8 && gameState.qi >= CONSTANTS.PILLAR_QI_COST) {
         CultivationSystem.formPillar();
       }

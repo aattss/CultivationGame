@@ -76,6 +76,7 @@ export function createInitialGameState() {
     samsaraPoints: 0,
     seenBloodline: false,
     seenDaoRune: false,
+    tribulationFailed: Array(8).fill(0),
 
     // Statistics tracking for last 10 lives
     lifeStats: [],
