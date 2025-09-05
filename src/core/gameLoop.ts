@@ -9,12 +9,12 @@ import { UISystem } from "../ui/uiSystem.js";
  * Handles the main game loop and timing
  */
 export class GameLoop {
-  static intervalId = null;
+  static intervalId: number | null = null;
 
   /**
    * Start the main game loop
    */
-  static start() {
+  static start(): void {
     // Clear any existing interval
     if (this.intervalId) {
       clearInterval(this.intervalId);
@@ -42,7 +42,7 @@ export class GameLoop {
   /**
    * Pause the game loop
    */
-  static pause() {
+  static pause(): void {
     gameState.pauseState = !gameState.pauseState;
   }
 }

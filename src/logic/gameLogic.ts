@@ -10,9 +10,9 @@ import { CultivationSystem } from "../mechanics/cultivationSystem.js";
 export class GameLogic {
   /**
    * Process one year of game time
-   * @param {boolean} cultivates - Whether the character cultivates this year
+   * @param cultivates - Whether the character cultivates this year
    */
-  static oneYearPass(cultivates) {
+  static oneYearPass(cultivates: boolean): void {
     gameState.age += 1;
     gameState.totalYears += 1;
 
@@ -109,29 +109,31 @@ export class GameLogic {
   /**
    * Calculate average statistics from recent lives
    */
-  static calculateAverageStats() {
+  static calculateAverageStats(): void {
     const stats = gameState.lifeStats;
     if (stats.length === 0) return;
 
     const totals = stats.reduce((acc, life) => {
       Object.entries(life).forEach(([key, value]) => {
-        acc[key] = (acc[key] || 0) + value;
+        if (typeof value === "number") {
+          acc[key] = (acc[key] || 0) + value;
+        }
       });
       return acc;
-    }, {});
+    }, {} as any);
 
     gameState.averageLifeStats = Object.fromEntries(
       Object.entries(totals).map(([key, total]) => [
         key,
-        Math.round((10 * total) / stats.length) / 10,
+        Math.round((10 * (total as number)) / stats.length) / 10,
       ])
-    );
+    ) as any;
   }
 
   /**
    * Handle random lucky encounters based on luck stat
    */
-  static LuckyEncounter() {
+  static LuckyEncounter(): void {
     if (
       Math.random() <
       CONSTANTS.LUCKY_ENCOUNTER_BASE_CHANCE *
@@ -193,7 +195,7 @@ export class GameLogic {
     }
   }
 
-  static tribulation() {
+  static tribulation(): void {
     const curPower = CultivationSystem.getCombatPower();
     switch (gameState.age) {
       case 60:

@@ -9,9 +9,9 @@ import { Utility } from "../utils/utility.js";
 export class CultivationSystem {
   /**
    * Calculate the current qi capacity based on various factors
-   * @returns {number} Total qi capacity
+   * @returns Total qi capacity
    */
-  static getQiCapacity() {
+  static getQiCapacity(): number {
     return (
       gameState.meridianCapacity +
       gameState.dantianGrade * 400 +
@@ -21,9 +21,9 @@ export class CultivationSystem {
 
   /**
    * Calculate combat power based on various cultivation factors
-   * @returns {number} Current combat power
+   * @returns Current combat power
    */
-  static getCombatPower() {
+  static getCombatPower(): number {
     const combatPower =
       Math.max(0, Math.log(gameState.vitality) / Math.log(7)) +
       Math.max(0, Math.log10(gameState.qi)) +
@@ -34,9 +34,9 @@ export class CultivationSystem {
 
   /**
    * Calculate qi generation rate per cultivation cycle
-   * @returns {number} Qi gained per cycle
+   * @returns Qi gained per cycle
    */
-  static getQiRate() {
+  static getQiRate(): number {
     return (
       Math.ceil(
         Math.pow(gameState.circulationSkill + 1, 2) *
@@ -50,7 +50,7 @@ export class CultivationSystem {
   /**
    * Attempt to open meridians based on current stats
    */
-  static cultivateMeridians() {
+  static cultivateMeridians(): void {
     let failed = false;
     let combo = 0;
     while (gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT && !failed) {
@@ -94,7 +94,7 @@ export class CultivationSystem {
   /**
    * Cultivate circulation technique and generate qi
    */
-  static cultivateCirculation() {
+  static cultivateCirculation(): void {
     gameState.circulationProficiency +=
       gameState.comprehension * gameState.daoRuneMultiplier;
     const circulationDifficulty =
@@ -155,7 +155,7 @@ export class CultivationSystem {
   /**
    * Cultivate organs to improve qi purity
    */
-  static cultivateOrgans() {
+  static cultivateOrgans(): void {
     const qiTransferred = Math.ceil(gameState.qi / 50);
     gameState.qi -= qiTransferred;
     gameState.organProgress += qiTransferred * (1 + gameState.qiPurity / 100);
@@ -180,7 +180,7 @@ export class CultivationSystem {
   /**
    * Form a cultivation pillar
    */
-  static formPillar() {
+  static formPillar(): void {
     gameState.qi -= CONSTANTS.PILLAR_QI_COST;
     const success = Math.min(6, Math.random() * gameState.qiFolds);
     if (success > 2) {
@@ -198,7 +198,7 @@ export class CultivationSystem {
   /**
    * Form a dantian with accumulated pillars
    */
-  static formDantian() {
+  static formDantian(): void {
     let difficulty = Utility.rollOneDice(3 * gameState.dantianGrade + 16, 1);
     let cost = 100 * gameState.dantianGrade;
     const foundation = gameState.pillarQuality + gameState.qiFolds;
@@ -246,7 +246,7 @@ export class CultivationSystem {
   /**
    * Cultivate acupoints to increase qi capacity
    */
-  static cultivateAcupoints() {
+  static cultivateAcupoints(): void {
     const acupointCost = Math.max(
       1,
       150 + gameState.acupoints - Math.pow(gameState.qiFolds, 2)
@@ -264,7 +264,7 @@ export class CultivationSystem {
   /**
    * Main cultivation function that handles all cultivation activities
    */
-  static cultivate() {
+  static cultivate(): void {
     if (gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT) {
       this.cultivateMeridians();
     } else if (gameState.qi >= 100) {
@@ -302,7 +302,7 @@ export class CultivationSystem {
     }
   }
 
-  static cultivateChakras() {
+  static cultivateChakras(): void {
     let chakraCost = 0;
     if (gameState.openedChakras == 7) {
       return;
@@ -321,7 +321,7 @@ export class CultivationSystem {
   /**
    * Gain a random dao rune for cultivation bonus
    */
-  static gainRandomDaoRune() {
+  static gainRandomDaoRune(): void {
     gameState.log.push("You see a strange symbol in your dreams.");
     gameState.daoRunes[Utility.rollOneDice(9, 0)] = 1;
     gameState.daoRuneMultiplier = Math.pow(

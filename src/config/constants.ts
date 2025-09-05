@@ -1,8 +1,10 @@
+import type { Constants } from "../types/gameTypes.js";
+
 /**
  * Game configuration constants
  * Contains all the core game balance values and settings
  */
-export const CONSTANTS = {
+export const CONSTANTS: Constants = {
   MERIDIAN_COUNT: 12,
   BASE_AGE: 18,
   BASE_QI_PURITY: 100,

@@ -18,7 +18,7 @@ import { GamePersistence, gameSave, gameLoad } from "./core/persistence.js";
 /**
  * Initialize and start the game
  */
-function initializeGame() {
+function initializeGame(): void {
   console.log("Initializing Cultivation Game...");
 
   // Try to load saved game
@@ -40,7 +40,7 @@ function initializeGame() {
  * Global function to pause the game
  * Exposed for backward compatibility with existing UI
  */
-function pauseGame() {
+function pauseGame(): void {
   GameLoop.pause();
 }
 
@@ -48,10 +48,26 @@ function pauseGame() {
  * Global function to reset the save and restart
  * Exposed for backward compatibility with existing UI
  */
-function resetSave() {
+function resetSave(): void {
   GamePersistence.clearSave();
   GameInitializer.startGame();
   GameInitializer.startLife();
+}
+
+// Extend the Window interface to include our global functions
+declare global {
+  interface Window {
+    pauseGame: () => void;
+    resetSave: () => void;
+    gameSave: () => boolean;
+    gameLoad: () => any;
+    gameState: typeof gameState;
+    GameLogic: typeof GameLogic;
+    CultivationSystem: typeof CultivationSystem;
+    UISystem: typeof UISystem;
+    GameLoop: typeof GameLoop;
+    GamePersistence: typeof GamePersistence;
+  }
 }
 
 // Make functions globally available for HTML onclick handlers

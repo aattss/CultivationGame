@@ -1,4 +1,5 @@
 import { CONSTANTS } from "../config/constants.js";
+import type { GameState } from "../types/gameTypes.js";
 
 /**
  * Game state management
@@ -7,9 +8,9 @@ import { CONSTANTS } from "../config/constants.js";
 
 /**
  * Initialize a fresh game state object
- * @returns {Object} Fresh game state
+ * @returns Fresh game state
  */
-export function createInitialGameState() {
+export function createInitialGameState(): GameState {
   return {
     // Character stats
     age: 0,
@@ -109,13 +110,13 @@ export function createInitialGameState() {
 }
 
 // Global game state - will be replaced by loaded save if available
-export let gameState = createInitialGameState();
+export let gameState: GameState = createInitialGameState();
 
 /**
  * Update the global game state reference
  * Used when loading saved games
- * @param {Object} newState - The new game state to use
+ * @param newState - The new game state to use
  */
-export function setGameState(newState) {
+export function setGameState(newState: GameState): void {
   gameState = newState;
 }

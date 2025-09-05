@@ -1,4 +1,5 @@
 import { gameState, setGameState } from "../data/gameState.js";
+import type { GameState } from "../types/gameTypes.js";
 
 /**
  * Game Persistence
@@ -9,9 +10,9 @@ export class GamePersistence {
 
   /**
    * Save the current game state to localStorage
-   * @returns {boolean} Whether the save was successful
+   * @returns Whether the save was successful
    */
-  static gameSave() {
+  static gameSave(): boolean {
     try {
       localStorage.setItem(this.SAVE_KEY, JSON.stringify(gameState));
       return true;
@@ -23,13 +24,13 @@ export class GamePersistence {
 
   /**
    * Load game state from localStorage
-   * @returns {Object|null} The loaded game state or null if no save exists or loading failed
+   * @returns The loaded game state or null if no save exists or loading failed
    */
-  static gameLoad() {
+  static gameLoad(): GameState | null {
     try {
       const save = localStorage.getItem(this.SAVE_KEY);
       if (save) {
-        return JSON.parse(save);
+        return JSON.parse(save) as GameState;
       }
     } catch (error) {
       console.error("Failed to load save:", error);
@@ -39,9 +40,9 @@ export class GamePersistence {
 
   /**
    * Load and apply saved game state
-   * @returns {boolean} Whether a save was successfully loaded and applied
+   * @returns Whether a save was successfully loaded and applied
    */
-  static loadSavedGame() {
+  static loadSavedGame(): boolean {
     const loadedSave = this.gameLoad();
     if (loadedSave) {
       setGameState(loadedSave);
@@ -52,9 +53,9 @@ export class GamePersistence {
 
   /**
    * Clear the saved game from localStorage
-   * @returns {boolean} Whether the save was successfully cleared
+   * @returns Whether the save was successfully cleared
    */
-  static clearSave() {
+  static clearSave(): boolean {
     try {
       localStorage.removeItem(this.SAVE_KEY);
       return true;

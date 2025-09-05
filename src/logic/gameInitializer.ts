@@ -14,7 +14,7 @@ export class GameInitializer {
   /**
    * Initialize a completely new game
    */
-  static startGame() {
+  static startGame(): void {
     gameState.meridianEx = Array(CONSTANTS.MERIDIAN_COUNT).fill(0);
     gameState.meridianFortune = Array(CONSTANTS.MERIDIAN_COUNT).fill(false);
     gameState.log.push("You began your journey");
@@ -23,7 +23,7 @@ export class GameInitializer {
   /**
    * Start a new life cycle with fresh stats and progression
    */
-  static startLife() {
+  static startLife(): void {
     // Reset life stats
     gameState.meridianCapacity = 0;
     gameState.meridiansOpened = 0;
@@ -73,7 +73,7 @@ export class GameInitializer {
    * Generate random character stats with bonuses from previous achievements
    * @private
    */
-  static _generateRandomStats() {
+  static _generateRandomStats(): void {
     // Vitality with bonus from previous achievements
     gameState.vitality = Utility.rollDice(
       10,
@@ -145,7 +145,7 @@ export class GameInitializer {
    * Generate meridian talents with fortune rerolls and upgrades
    * @private
    */
-  static _generateMeridianTalents() {
+  static _generateMeridianTalents(): void {
     gameState.meridianTalent = Array.from(
       { length: CONSTANTS.MERIDIAN_COUNT },
       () => Utility.rollOneDice(100, 1)
@@ -183,7 +183,7 @@ export class GameInitializer {
    * Generate organ talents for purification system
    * @private
    */
-  static _generateOrganTalents() {
+  static _generateOrganTalents(): void {
     gameState.organTalent = Array.from({ length: 5 }, () =>
       Utility.rollOneDice(100, 1)
     );
@@ -193,7 +193,7 @@ export class GameInitializer {
    * Generate chakra talents for chakra system
    * @private
    */
-  static _generateChakraTalents() {
+  static _generateChakraTalents(): void {
     gameState.chakraTalent = Array.from({ length: 5 }, () =>
       Utility.rollOneDice(100, 1)
     );
@@ -203,7 +203,7 @@ export class GameInitializer {
    * Calculate the starting age based on wisdom
    * @private
    */
-  static _calculateStartAge() {
+  static _calculateStartAge(): void {
     gameState.startAge =
       CONSTANTS.BASE_AGE -
       Math.max(Math.ceil(Math.log(gameState.wisdom / 15) / Math.log(1.5)), 0);
@@ -215,7 +215,7 @@ export class GameInitializer {
    * Simulate early years before cultivation starts
    * @private
    */
-  static _simulateEarlyYears() {
+  static _simulateEarlyYears(): void {
     for (
       gameState.age = 0;
       gameState.age < gameState.startAge;
@@ -227,9 +227,9 @@ export class GameInitializer {
 
   /**
    * Get an estimate of meridian opening potential
-   * @returns {number} Estimated meridian performance
+   * @returns Estimated meridian performance
    */
-  static getMeridianEstimate() {
+  static getMeridianEstimate(): number {
     var min = Math.min.apply(null, gameState.meridianTalent);
     var average =
       Utility.sum(gameState.meridianTalent) / CONSTANTS.MERIDIAN_COUNT;

@@ -4,39 +4,45 @@ import { shopItems } from "../data/shopItems.js";
 import { CultivationSystem } from "../mechanics/cultivationSystem.js";
 import { GameInitializer } from "../logic/gameInitializer.js";
 import { gameSave } from "../core/persistence.js";
+import type {
+  ElementCache,
+  ValueCache,
+  ContainerStateCache,
+  ShopItem,
+} from "../types/gameTypes.js";
 
 /**
  * UI System
  * Handles all user interface updates and interactions
  */
 export class UISystem {
-  static elementCache = new Map();
-  static lastValues = new Map();
-  static lastContainerStates = new Map();
-  static lastLogLength = 0;
-  static lastSamsaraPoints = null;
+  static elementCache: ElementCache = new Map();
+  static lastValues: ValueCache = new Map();
+  static lastContainerStates: ContainerStateCache = new Map();
+  static lastLogLength: number = 0;
+  static lastSamsaraPoints: number | null = null;
 
   /**
    * Get a cached DOM element
-   * @param {string} elementId - The ID of the element to retrieve
-   * @returns {HTMLElement|null} The cached element or null if not found
+   * @param elementId - The ID of the element to retrieve
+   * @returns The cached element or null if not found
    */
-  static getElement(elementId) {
+  static getElement(elementId: string): HTMLElement | null {
     if (!this.elementCache.has(elementId)) {
       const element = document.getElementById(elementId);
       if (element) {
         this.elementCache.set(elementId, element);
       }
     }
-    return this.elementCache.get(elementId);
+    return this.elementCache.get(elementId) || null;
   }
 
   /**
    * Toggle visibility of a container element
-   * @param {string} containerId - The ID of the container to toggle
-   * @param {boolean} show - Whether to show or hide the container
+   * @param containerId - The ID of the container to toggle
+   * @param show - Whether to show or hide the container
    */
-  static toggleContainerVisibility(containerId, show) {
+  static toggleContainerVisibility(containerId: string, show: boolean): void {
     // Skip if state hasn't changed
     const lastState = this.lastContainerStates.get(containerId);
     if (lastState === show) return;
@@ -50,29 +56,36 @@ export class UISystem {
 
   /**
    * Update the content of an element if it has changed
-   * @param {string} elementId - The ID of the element to update
-   * @param {string|number} value - The new value to set
+   * @param elementId - The ID of the element to update
+   * @param value - The new value to set
    */
-  static updateElementContent(elementId, value) {
+  static updateElementContent(elementId: string, value: string | number): void {
     // Skip if value hasn't changed
     const lastValue = this.lastValues.get(elementId);
     if (lastValue === value) return;
 
     const element = this.getElement(elementId);
     if (element) {
-      element.innerHTML = value;
+      element.innerHTML = String(value);
       this.lastValues.set(elementId, value);
     }
   }
 
   /**
    * Update multiple elements in a single batch operation, optionally filtering by visible containers
-   * @param {Object} elements - Object mapping element IDs to new values
-   * @param {Set} visibleContainers - Optional set of visible container IDs to filter updates
+   * @param elements - Object mapping element IDs to new values
+   * @param visibleContainers - Optional set of visible container IDs to filter updates
    */
-  static updateMultipleElements(elements, visibleContainers = null) {
+  static updateMultipleElements(
+    elements: Record<string, string | number>,
+    visibleContainers: Set<string> | null = null
+  ): void {
     // Batch DOM updates by collecting all changes first
-    const updates = [];
+    const updates: Array<{
+      element: HTMLElement;
+      value: string | number;
+      id: string;
+    }> = [];
     Object.entries(elements).forEach(([id, value]) => {
       // Skip updates for elements in hidden containers if filtering is enabled
       if (
@@ -94,7 +107,7 @@ export class UISystem {
     // Apply all updates in a single batch
     if (updates.length > 0) {
       updates.forEach(({ element, value, id }) => {
-        element.innerHTML = value;
+        element.innerHTML = String(value);
         this.lastValues.set(id, value);
       });
     }
@@ -102,11 +115,17 @@ export class UISystem {
 
   /**
    * Toggle visibility of multiple containers in a single batch operation
-   * @param {Array} containerConfigs - Array of container configurations
+   * @param containerConfigs - Array of container configurations
    */
-  static toggleMultipleContainers(containerConfigs) {
+  static toggleMultipleContainers(
+    containerConfigs: Array<string | { id: string; show: boolean }>
+  ): void {
     // Batch container visibility changes
-    const changes = [];
+    const changes: Array<{
+      container: HTMLElement;
+      show: boolean;
+      containerId: string;
+    }> = [];
     containerConfigs.forEach((config) => {
       const containerId = typeof config === "string" ? config : config.id;
       const show = typeof config === "string" ? true : config.show;
@@ -129,11 +148,14 @@ export class UISystem {
 
   /**
    * Check if an element is in a visible container
-   * @param {string} elementId - The element ID to check
-   * @param {Set} visibleContainers - Set of visible container IDs
-   * @returns {boolean} True if element is in a visible container or no container mapping exists
+   * @param elementId - The element ID to check
+   * @param visibleContainers - Set of visible container IDs
+   * @returns True if element is in a visible container or no container mapping exists
    */
-  static isElementInVisibleContainer(elementId, visibleContainers) {
+  static isElementInVisibleContainer(
+    elementId: string,
+    visibleContainers: Set<string>
+  ): boolean {
     const containerMapping = this.getElementContainerMapping();
     const containerId = containerMapping[elementId];
     return !containerId || visibleContainers.has(containerId);
@@ -141,9 +163,9 @@ export class UISystem {
 
   /**
    * Get mapping of element IDs to their container IDs
-   * @returns {Object} Mapping of element IDs to container IDs
+   * @returns Mapping of element IDs to container IDs
    */
-  static getElementContainerMapping() {
+  static getElementContainerMapping(): Record<string, string | null> {
     return {
       "meridian talent": "meridian-talent-container",
       "average age": null, // Always visible
@@ -179,13 +201,16 @@ export class UISystem {
 
   /**
    * Unified UI update that consolidates element updates and container visibility
-   * @param {Object} config - Configuration object with elements and containers
+   * @param config - Configuration object with elements and containers
    */
-  static updateUIWithConsolidatedLogic(config) {
+  static updateUIWithConsolidatedLogic(config: {
+    elementUpdates: Record<string, string | number>;
+    containerStates: Record<string, boolean>;
+  }): void {
     const { elementUpdates, containerStates } = config;
 
     // Create set of visible containers for filtering
-    const visibleContainers = new Set();
+    const visibleContainers = new Set<string>();
     Object.entries(containerStates).forEach(([containerId, show]) => {
       if (show) {
         visibleContainers.add(containerId);
@@ -205,7 +230,7 @@ export class UISystem {
   /**
    * Refresh UI for a new life - shows overview statistics
    */
-  static refreshClientNewLife() {
+  static refreshClientNewLife(): void {
     // Clear cache for new life to ensure fresh state
     this.clearCache();
 
@@ -216,20 +241,21 @@ export class UISystem {
       gameState.averageLifeStats.ageAt12thMeridian != null;
 
     // Prepare ALL element updates - no conditional logic here
-    const elementUpdates = {
+    const elementUpdates: Record<string, string | number> = {
       "meridian talent": GameInitializer.getMeridianEstimate(),
       "average age": gameState.averageLifeStats.ageAtDeath,
       "highest qi folds": gameState.highestQiFold,
       "highest dantian grade": gameState.highestDantian,
       "average qi folds": gameState.averageLifeStats.qiFoldsAtDeath,
       "highest chakras": gameState.highestChakra,
-      "average primary meridians": gameState.averageLifeStats.ageAt12thMeridian,
+      "average primary meridians":
+        gameState.averageLifeStats.ageAt12thMeridian || 0,
       "average meridians": gameState.averageLifeStats.meridiansOpenedAtDeath,
       "highest meridian": gameState.highestMeridian,
     };
 
     // Prepare container states using the same consolidated logic
-    const containerStates = {
+    const containerStates: Record<string, boolean> = {
       "highest-qi-folds-container": isAdvancedPlayer,
       "highest-chakras-container": isAdvancedPlayer && hasChakras,
       "comprehension-container": isAdvancedPlayer,
@@ -252,7 +278,7 @@ export class UISystem {
   /**
    * Refresh the main game client UI during gameplay
    */
-  static refreshClient() {
+  static refreshClient(): void {
     // Only update log if it has changed
     let logUpdated = false;
     if (gameState.log.length !== this.lastLogLength) {
@@ -275,7 +301,7 @@ export class UISystem {
     const showQiPurity = gameState.totalLives > 40;
 
     // Prepare ALL element updates - no conditional logic here
-    const elementUpdates = {
+    const elementUpdates: Record<string, string | number> = {
       age: gameState.age,
       "combat power": CultivationSystem.getCombatPower() || 0,
       qi: gameState.qi,
@@ -303,7 +329,7 @@ export class UISystem {
     }
 
     // Container visibility controls what gets displayed - this is the ONLY conditional logic
-    const containerStates = {
+    const containerStates: Record<string, boolean> = {
       "vitality-container": showVitality,
       "meridian-talent-container": showMeridianTalent,
       "wisdom-container": showWisdom,
@@ -335,7 +361,7 @@ export class UISystem {
   /**
    * Clear all UI caches - used when game resets
    */
-  static clearCache() {
+  static clearCache(): void {
     // Clear all caches when game resets or significant changes occur
     this.elementCache.clear();
     this.lastValues.clear();
@@ -347,7 +373,7 @@ export class UISystem {
   /**
    * Refresh the upgrade shop display
    */
-  static refreshUpgradeShop() {
+  static refreshUpgradeShop(): void {
     const upgradeList = document.getElementById("upgrade-list");
     if (!upgradeList) return;
 
@@ -400,10 +426,10 @@ export class UISystem {
 
   /**
    * Handle upgrade purchase
-   * @param {string} key - The upgrade key
-   * @param {Object} upgrade - The upgrade object
+   * @param key - The upgrade key
+   * @param upgrade - The upgrade object
    */
-  static purchaseUpgrade(key, upgrade) {
+  static purchaseUpgrade(key: string, upgrade: ShopItem): void {
     // Double-check conditions before purchase
     if (!upgrade.condition() || gameState.samsaraPoints < upgrade.price) {
       return;
