@@ -48,6 +48,7 @@ export function createInitialGameState(): GameState {
     cyclesCleansed: 0,
     organTalent: [],
     organProgress: 0,
+    organEx: Array(5).fill(0),
 
     acupoints: 0,
 

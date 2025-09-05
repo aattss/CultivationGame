@@ -17,6 +17,7 @@ export class GameInitializer {
   static startGame(): void {
     gameState.meridianEx = Array(CONSTANTS.MERIDIAN_COUNT).fill(0);
     gameState.meridianFortune = Array(CONSTANTS.MERIDIAN_COUNT).fill(false);
+    gameState.organEx = Array(gameState.organEx.length).fill(0);
     gameState.log.push("You began your journey");
   }
 
@@ -89,11 +90,12 @@ export class GameInitializer {
     ) {
       gameState.log.push("You awakened a special bloodline.");
       gameState.vitality += Utility.rollDice(10, 1, 2, 1);
-      gameState.organTalent[Utility.rollOneDice(5, 0)] += Utility.rollOneDice(
-        100,
-        1
-      );
+      const organEnhanced = Utility.rollOneDice(5, 0);
+      gameState.organTalent[organEnhanced] += Utility.rollOneDice(100, 1);
       gameState.seenBloodline = true;
+      if (gameState.organEx[organEnhanced] == 0) {
+        gameState.organEx[organEnhanced] += 1;
+      }
     }
     if (
       Utility.rollDice(100, 1, 1, gameState.shopUpgrades.daoRuneReroll) == 100
@@ -187,6 +189,9 @@ export class GameInitializer {
     gameState.organTalent = Array.from({ length: 5 }, () =>
       Utility.rollOneDice(100, 1)
     );
+    gameState.organTalent.forEach((talent, index) => {
+      gameState.organTalent[index] += gameState.organEx[index];
+    });
   }
 
   /**

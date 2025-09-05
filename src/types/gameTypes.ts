@@ -60,6 +60,7 @@ export interface GameState {
   cyclesCleansed: number;
   organTalent: number[];
   organProgress: number;
+  organEx: number[];
 
   acupoints: number;
 
