@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main] # Adjust to your default branch if different
+    branches: [main]
 
 jobs:
   build-and-deploy:
@@ -24,8 +24,16 @@ jobs:
       - name: Build TypeScript
         run: npm run build
 
+      - name: Create deployment directory
+        run: |
+          mkdir -p deploy
+          cp index.html deploy/
+          cp interface.css deploy/
+          cp favicon.ico deploy/
+          cp -r dist deploy/
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: deploy
