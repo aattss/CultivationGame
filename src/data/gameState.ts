@@ -22,11 +22,11 @@ export function createInitialGameState(): GameState {
     startAge: 0,
 
     // Meridian system
-    meridianTalent: [],
+    meridianTalent: Array(12).fill(0),
     meridianCapacity: 0,
     meridiansOpened: 0,
-    meridianEx: [],
-    meridianFortune: [],
+    meridianEx: Array(12).fill(0),
+    meridianFortune: Array(12).fill(false),
 
     // Qi system
     qi: 0,
@@ -46,7 +46,7 @@ export function createInitialGameState(): GameState {
     // Organ purification system
     organsPurified: 0,
     cyclesCleansed: 0,
-    organTalent: [],
+    organTalent: Array(5).fill(0),
     organProgress: 0,
     organEx: Array(5).fill(0),
 
@@ -60,7 +60,7 @@ export function createInitialGameState(): GameState {
 
     // Chakra System
     openedChakras: 0,
-    chakraTalent: [],
+    chakraTalent: Array(7).fill(0),
 
     // Game settings
     restartOnDeath: true,

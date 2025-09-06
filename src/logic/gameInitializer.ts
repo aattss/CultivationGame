@@ -40,7 +40,10 @@ export class GameInitializer {
     gameState.daoRunes = gameState.daoRunes.map((value) =>
       Math.random() < 0.5 ? 0 : value
     );
-    gameState.daoRuneMultiplier = 1;
+    gameState.daoRuneMultiplier = Math.pow(
+      2.5,
+      Utility.sum(gameState.daoRunes)
+    );
     gameState.dead = false;
     gameState.dantianRerolls = gameState.shopUpgrades.dantianReroll;
     gameState.organsPurified = 0;
@@ -199,7 +202,7 @@ export class GameInitializer {
    * @private
    */
   static _generateChakraTalents(): void {
-    gameState.chakraTalent = Array.from({ length: 5 }, () =>
+    gameState.chakraTalent = Array.from({ length: 7 }, () =>
       Utility.rollOneDice(100, 1)
     );
   }

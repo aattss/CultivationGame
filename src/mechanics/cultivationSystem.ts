@@ -119,7 +119,7 @@ export class CultivationSystem {
         gameState.enlightenment += 1;
         gameState.circulationGrade = 1;
         gameState.log.push(
-          "You had a glimpse of enlightenment and started over with your cultivaiton technique."
+          "You had a glimpse of enlightenment and started over with your cultivation technique."
         );
       } else if (
         Math.random() * gameState.circulationGrade * 100 <
