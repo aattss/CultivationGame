@@ -9,6 +9,9 @@
 .scroll {
   overflow-y: scroll;
   height: 60vh;
+  display: flex;
+  flex-direction: column-reverse;
+  margin-left: 5px;
 }
 
 .upgrade-shop {
