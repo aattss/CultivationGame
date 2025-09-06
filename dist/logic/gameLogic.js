@@ -25,9 +25,7 @@ export class GameLogic {
         // Qi purity degradation
         if (gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT ||
             Math.random() <
-                Math.pow(CONSTANTS.QI_PURITY_DEGRADATION_BASE, gameState.circulationSkill +
-                    gameState.circulationGrade +
-                    gameState.cyclesCleansed)) {
+                Math.pow(CONSTANTS.QI_PURITY_DEGRADATION_BASE, gameState.circulationSkill + gameState.circulationGrade)) {
             gameState.qiPurity -= 1;
         }
         // Aging effects
