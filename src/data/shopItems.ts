@@ -194,4 +194,50 @@ export const shopItems: ShopItems = {
       gameState.shopUpgrades.dantianReroll = 2;
     },
   },
+  organTalentReroll: {
+    name: "Adds A Reroll For One Organ Talent",
+    price: 4200,
+    condition: function (): boolean {
+      return (
+        gameState.shopUpgrades.organTalentReroll == 0 &&
+        gameState.highestCycle > 1
+      );
+    },
+    effect: function (): void {
+      gameState.shopUpgrades.organTalentReroll = 1;
+    },
+  },
+  organTalentSecondReroll: {
+    name: "Another Additional Reroll For Organ Talent",
+    price: 9400,
+    condition: function (): boolean {
+      return gameState.shopUpgrades.organTalentReroll == 1;
+    },
+    effect: function (): void {
+      gameState.shopUpgrades.organTalentReroll = 2;
+    },
+  },
+  chakraTalentReroll: {
+    name: "Adds A Reroll For One Chakra Talent",
+    price: 7200,
+    condition: function (): boolean {
+      return (
+        gameState.shopUpgrades.chakraTalentReroll == 0 &&
+        gameState.highestChakra > 0
+      );
+    },
+    effect: function (): void {
+      gameState.shopUpgrades.chakraTalentReroll = 1;
+    },
+  },
+  ckakraTalentSecondReroll: {
+    name: "Another Additional Reroll For Chakra Talent",
+    price: 13400,
+    condition: function (): boolean {
+      return gameState.shopUpgrades.chakraTalentReroll == 1;
+    },
+    effect: function (): void {
+      gameState.shopUpgrades.chakraTalentReroll = 2;
+    },
+  },
 };

@@ -106,6 +106,8 @@ export function createInitialGameState(): GameState {
       bloodlineReroll: 0,
       dantianReroll: 0,
       daoRuneReroll: 0,
+      organTalentReroll: 0,
+      chakraTalentReroll: 0,
     },
   };
 }

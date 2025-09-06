@@ -14,6 +14,8 @@ export interface ShopUpgrades {
   bloodlineReroll: number;
   dantianReroll: number;
   daoRuneReroll: number;
+  organTalentReroll: number;
+  chakraTalentReroll: number;
 }
 
 export interface LifeStats {

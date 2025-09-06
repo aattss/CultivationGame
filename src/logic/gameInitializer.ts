@@ -192,6 +192,13 @@ export class GameInitializer {
     gameState.organTalent = Array.from({ length: 5 }, () =>
       Utility.rollOneDice(100, 1)
     );
+    for (let i = 0; i < gameState.shopUpgrades.organTalentReroll; i++) {
+      const minOrgan = Utility.findMinIndex(gameState.organTalent);
+      const reroll = Utility.rollOneDice(100, 1);
+      if (reroll > gameState.organTalent[minOrgan]) {
+        gameState.organTalent[minOrgan] = reroll;
+      }
+    }
     gameState.organTalent.forEach((talent, index) => {
       gameState.organTalent[index] += gameState.organEx[index];
     });
@@ -205,6 +212,13 @@ export class GameInitializer {
     gameState.chakraTalent = Array.from({ length: 7 }, () =>
       Utility.rollOneDice(100, 1)
     );
+    for (let i = 0; i < gameState.shopUpgrades.chakraTalentReroll; i++) {
+      const minChakra = Utility.findMinIndex(gameState.chakraTalent);
+      const reroll = Utility.rollOneDice(100, 1);
+      if (reroll > gameState.chakraTalent[minChakra]) {
+        gameState.chakraTalent[minChakra] = reroll;
+      }
+    }
   }
 
   /**
