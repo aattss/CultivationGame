@@ -96,7 +96,7 @@ export class CultivationSystem {
    */
   static cultivateCirculation(): void {
     gameState.circulationProficiency +=
-      gameState.comprehension * gameState.daoRuneMultiplier;
+      Math.pow(gameState.comprehension / 10, 2) * gameState.daoRuneMultiplier;
     const circulationDifficulty =
       CONSTANTS.CIRCULATION_BASE_DIFFICULTY *
       Math.pow(
@@ -185,13 +185,13 @@ export class CultivationSystem {
     const success = Math.min(6, Math.random() * gameState.qiFolds);
     if (success > 2) {
       gameState.pillars += 1;
-      gameState.vitality += Math.floor(success * 4);
+      gameState.vitality += Math.floor(success * 8);
       gameState.pillarQuality += Math.floor(success / 2);
       if (gameState.pillars < 8 && gameState.qi >= CONSTANTS.PILLAR_QI_COST) {
         CultivationSystem.formPillar();
       }
     } else {
-      gameState.vitality -= Utility.rollOneDice(16, 7);
+      gameState.vitality -= Utility.rollOneDice(15, 5);
     }
   }
 
@@ -249,7 +249,7 @@ export class CultivationSystem {
   static cultivateAcupoints(): void {
     const acupointCost = Math.max(
       1,
-      150 + gameState.acupoints - Math.pow(gameState.qiFolds, 2)
+      250 + gameState.acupoints - 2 * Math.pow(gameState.qiFolds, 2)
     );
     const acupointsOpened = Math.floor(
       Math.min(
@@ -292,7 +292,11 @@ export class CultivationSystem {
       gameState.qi >= 0.95 * CultivationSystem.getQiCapacity()
     ) {
       if (gameState.pillars < 8) {
-        this.formPillar();
+        if (gameState.vitality > 30) {
+          this.formPillar();
+        } else {
+          CultivationSystem.cultivateAcupoints();
+        }
       } else if (gameState.dantianGrade == 0) {
         this.formDantian();
       } else {

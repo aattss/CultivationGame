@@ -32,9 +32,7 @@ export class GameLogic {
       Math.random() <
         Math.pow(
           CONSTANTS.QI_PURITY_DEGRADATION_BASE,
-          gameState.circulationSkill +
-            gameState.circulationGrade +
-            gameState.cyclesCleansed
+          gameState.circulationSkill + gameState.circulationGrade
         )
     ) {
       gameState.qiPurity -= 1;

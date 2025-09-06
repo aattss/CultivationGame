@@ -338,7 +338,7 @@ export class UISystem {
       "comprehension-container": hasComprehension,
       "qi-capacity-container": hasAdvancedMeridians,
       "qi-folds-container": hasAdvancedMeridians,
-      "acupoints-container": hasAdvancedMeridians && hasAdvancedDantian,
+      "acupoints-container": hasAdvancedMeridians,
       "chakras-container": hasAdvancedMeridians && hasAdvancedDantian,
       "circulation-skill-container": hasAdvancedMeridians,
     };
