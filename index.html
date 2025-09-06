@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" type="text/css" href="interface.css" />
+  </head>
+  <body>
+    <div class="row">
+      <div class="column">
+        Year: <span id="age"></span>
+        <br />
+        <button onclick="pauseGame()">Pause Game</button>
+        <br />
+        <button onclick="resetSave()">Reset Save</button>
+        <br />
+        <br />
+
+        <!-- Tab Container -->
+        <div class="tab-container">
+          <div class="tab-buttons">
+            <button class="tab-button active" onclick="switchTab('current')">
+              Current Stats
+            </button>
+            <button class="tab-button" onclick="switchTab('records')">
+              Records & Averages
+            </button>
+          </div>
+
+          <!-- Current Stats Tab -->
+          <div id="current-tab" class="tab-content active">
+            Samsara Points: <span id="samsara-points"></span>
+            <br />
+            Power Level: <span id="combat power"></span>
+            <br />
+            Meridians opened: <span id="meridian opened"></span>
+            <br />
+            <div id="qi-capacity-container">
+              Qi: <span id="qi"></span> / <span id="qi capacity"></span>
+              <br />
+            </div>
+            <div id="qi-purity-container">
+              Qi Purity: <span id="qi purity"></span>
+              <br />
+            </div>
+            <div id="qi-folds-container">
+              Qi folds: <span id="qi folds"></span>
+              <br />
+              Organ Cleanse Cycles: <span id="cycles cleansed"></span>
+              <br />
+              Pillars: <span id="pillars"></span>
+              <br />
+              Dantian Grade: <span id="dantian grade"></span>
+              <br />
+            </div>
+            <div id="acupoints-container">
+              Acupoints: <span id="acupoints"></span>
+              <br />
+            </div>
+            <div id="chakras-container">
+              Chakras opened: <span id="chakras opened"></span>
+              <br />
+            </div>
+            <br />
+            <div id="circulation-skill-container">
+              Circulation Skill: <span id="circulation skill"></span>
+              <br />
+              Circulation Grade: <span id="circulation grade"></span>
+              <br />
+            </div>
+            <br />
+            <div id="meridian-talent-container">
+              Meridian Talent: <span id="meridian talent"></span>
+              <br />
+            </div>
+            <div id="vitality-container">
+              Vitality: <span id="vitality"></span>
+              <br />
+            </div>
+            <div id="wisdom-container">
+              Wisdom: <span id="wisdom"></span>
+              <br />
+            </div>
+            <div id="luck-container">
+              Luck: <span id="luck"></span>
+              <br />
+            </div>
+            <div id="comprehension-container">
+              Comprehension: <span id="comprehension"></span>
+              <br />
+            </div>
+          </div>
+
+          <!-- Records & Averages Tab -->
+          <div id="records-tab" class="tab-content">
+            <div id="highest-meridian-container">
+              Highest Meridian: <span id="highest meridian"></span>
+              <br />
+            </div>
+            <div id="highest-qi-folds-container">
+              Highest Qi Folds: <span id="highest qi folds"></span>
+              <br />
+              Highest Dantian Grade: <span id="highest dantian grade"></span>
+              <br />
+            </div>
+            <div id="highest-chakras-container">
+              Highest Chakras: <span id="highest chakras"></span>
+              <br />
+            </div>
+            <br />
+            Last Ten Runs Average:
+            <br />
+            Average Age: <span id="average age"></span>
+            <br />
+            <div id="average-meridians-container">
+              Average Meridians: <span id="average meridians"></span>
+              <br />
+            </div>
+            <div id="average-primary-meridians-container">
+              Average Age Opened Primary Meridians:
+              <span id="average primary meridians"></span>
+              <br />
+            </div>
+            <div id="average-qi-folds-container">
+              Average Qi Folds: <span id="average qi folds"></span>
+              <br />
+            </div>
+          </div>
+        </div>
+
+        <div class="upgrade-shop">
+          <h3>Growth</h3>
+          <div id="upgrade-list"></div>
+        </div>
+      </div>
+      <div class="column scroll">
+        <pre><span id="log"></span></pre>
+      </div>
+    </div>
+    <script type="module" src="./dist/index.js"></script>
+    <script>
+      function switchTab(tabName) {
+        // Hide all tab contents
+        const tabContents = document.querySelectorAll(".tab-content");
+        tabContents.forEach((content) => {
+          content.classList.remove("active");
+        });
+
+        // Remove active class from all tab buttons
+        const tabButtons = document.querySelectorAll(".tab-button");
+        tabButtons.forEach((button) => {
+          button.classList.remove("active");
+        });
+
+        // Show the selected tab content
+        const selectedTab = document.getElementById(tabName + "-tab");
+        if (selectedTab) {
+          selectedTab.classList.add("active");
+        }
+
+        // Add active class to the clicked button
+        const clickedButton = event.target;
+        clickedButton.classList.add("active");
+      }
+    </script>
+  </body>
+</html>
