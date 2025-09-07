@@ -1,4 +1,8 @@
-import { gameState, setGameState } from "../data/gameState.js";
+import {
+  gameState,
+  setGameState,
+  createInitialGameState,
+} from "../data/gameState.js";
 import type { GameState } from "../types/gameTypes.js";
 
 /**
@@ -58,6 +62,7 @@ export class GamePersistence {
   static clearSave(): boolean {
     try {
       localStorage.removeItem(this.SAVE_KEY);
+      setGameState(createInitialGameState());
       return true;
     } catch (error) {
       console.error("Failed to clear save:", error);

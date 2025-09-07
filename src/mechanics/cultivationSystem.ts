@@ -60,7 +60,7 @@ export class CultivationSystem {
           gameState.meridianTalent[gameState.meridiansOpened] -
           gameState.qiPurity);
 
-      if (Math.random() * (difficulty + combo * 5) >= gameState.vitality) {
+      if (Math.random() * (difficulty + combo * 6) >= gameState.vitality) {
         failed = true;
         break;
       }
