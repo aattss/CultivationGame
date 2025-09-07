@@ -94,13 +94,14 @@ export class GameLogic {
       );
       gameState.totalLives += 1;
       let pointGain =
-        Math.floor(Math.pow(gameState.age / 40, 2)) +
+        Math.floor(gameState.age / 40) +
         gameState.meridiansOpened * 2 +
         gameState.qiFolds * 4 +
         gameState.pillars * 3 +
-        gameState.dantianGrade * 3 +
-        gameState.cyclesCleansed * 2 +
-        Math.floor(gameState.acupoints / 100);
+        gameState.dantianGrade * 4 +
+        gameState.organsPurified +
+        gameState.cyclesCleansed * 5 +
+        gameState.openedChakras * 8;
       gameState.samsaraPoints += pointGain;
     }
   }

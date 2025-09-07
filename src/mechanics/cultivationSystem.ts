@@ -14,7 +14,7 @@ export class CultivationSystem {
   static getQiCapacity(): number {
     return (
       gameState.meridianCapacity +
-      gameState.dantianGrade * 400 +
+      gameState.dantianGrade * 600 +
       gameState.acupoints * 5
     );
   }
@@ -171,8 +171,8 @@ export class CultivationSystem {
     gameState.organProgress += qiTransferred * (1 + gameState.qiPurity / 100);
     const organDifficulty =
       10 *
-      (150 +
-        150 * Math.pow(gameState.cyclesCleansed, 2) -
+      (200 +
+        100 * Math.pow(gameState.cyclesCleansed, 2) -
         gameState.vitality -
         (gameState.cyclesCleansed + 2) *
           gameState.organTalent[gameState.organsPurified]);
@@ -259,7 +259,7 @@ export class CultivationSystem {
   static cultivateAcupoints(): void {
     const acupointCost = Math.max(
       1,
-      250 + gameState.acupoints - 2 * Math.pow(gameState.qiFolds, 2)
+      300 + gameState.acupoints - 2 * Math.pow(gameState.qiFolds, 2)
     );
     const acupointsOpened = Math.floor(
       Math.min(
