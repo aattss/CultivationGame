@@ -59,10 +59,7 @@ export class CultivationSystem {
         (CONSTANTS.MERIDIAN_DIFFICULTY_BASE -
           gameState.meridianTalent[gameState.meridiansOpened] -
           gameState.qiPurity +
-          gameState.meridiansOpened >=
-        CONSTANTS.MERIDIAN_COUNT
-          ? 20
-          : 0);
+          (gameState.meridiansOpened >= CONSTANTS.MERIDIAN_COUNT ? 20 : 0));
 
       const effective_vitality =
         gameState.vitality -
@@ -174,8 +171,8 @@ export class CultivationSystem {
     gameState.organProgress += qiTransferred * (1 + gameState.qiPurity / 100);
     const organDifficulty =
       10 *
-      (200 +
-        100 * Math.pow(gameState.cyclesCleansed, 2) -
+      (150 +
+        150 * Math.pow(gameState.cyclesCleansed, 2) -
         gameState.vitality -
         (gameState.cyclesCleansed + 2) *
           gameState.organTalent[gameState.organsPurified]);
@@ -305,7 +302,7 @@ export class CultivationSystem {
       gameState.qi >= 0.95 * CultivationSystem.getQiCapacity()
     ) {
       if (gameState.pillars < 8) {
-        if (gameState.vitality > 30) {
+        if (gameState.cyclesCleansed > 0) {
           this.formPillar();
         } else {
           CultivationSystem.cultivateAcupoints();

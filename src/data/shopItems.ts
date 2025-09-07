@@ -48,7 +48,7 @@ export const shopItems: ShopItems = {
   },
   comprehensionReroll: {
     name: "Comprehension 2 Dice -> B2o3",
-    price: 1200,
+    price: 1000,
     condition: function (): boolean {
       return (
         gameState.shopUpgrades.rerollComprehension == 0 &&
@@ -131,7 +131,7 @@ export const shopItems: ShopItems = {
   },
   bloodlineOneReroll: {
     name: "Additional Bloodline Chance",
-    price: 1100,
+    price: 700,
     condition: function (): boolean {
       return (
         gameState.shopUpgrades.bloodlineReroll == 0 && gameState.seenBloodline
@@ -143,7 +143,7 @@ export const shopItems: ShopItems = {
   },
   bloodlineSecondReroll: {
     name: "Another Additional Bloodline Chance",
-    price: 3300,
+    price: 2200,
     condition: function (): boolean {
       return gameState.shopUpgrades.bloodlineReroll == 1;
     },
@@ -153,7 +153,7 @@ export const shopItems: ShopItems = {
   },
   daoRuneOneReroll: {
     name: "Additional Dao Rune Chance",
-    price: 2500,
+    price: 2200,
     condition: function (): boolean {
       return gameState.shopUpgrades.daoRuneReroll == 0 && gameState.seenDaoRune;
     },
@@ -163,7 +163,7 @@ export const shopItems: ShopItems = {
   },
   daoRuneSecondReroll: {
     name: "Another Additional Dao Rune Chance",
-    price: 9900,
+    price: 7800,
     condition: function (): boolean {
       return gameState.shopUpgrades.daoRuneReroll == 1;
     },
@@ -196,12 +196,9 @@ export const shopItems: ShopItems = {
   },
   organTalentReroll: {
     name: "Adds A Reroll For One Organ Talent",
-    price: 4200,
+    price: 1100,
     condition: function (): boolean {
-      return (
-        gameState.shopUpgrades.organTalentReroll == 0 &&
-        gameState.highestCycle > 1
-      );
+      return gameState.shopUpgrades.organTalentReroll == 0;
     },
     effect: function (): void {
       gameState.shopUpgrades.organTalentReroll = 1;
@@ -209,9 +206,12 @@ export const shopItems: ShopItems = {
   },
   organTalentSecondReroll: {
     name: "Another Additional Reroll For Organ Talent",
-    price: 9400,
+    price: 4600,
     condition: function (): boolean {
-      return gameState.shopUpgrades.organTalentReroll == 1;
+      return (
+        gameState.shopUpgrades.organTalentReroll == 1 &&
+        gameState.highestCycle > 1
+      );
     },
     effect: function (): void {
       gameState.shopUpgrades.organTalentReroll = 2;
@@ -242,7 +242,7 @@ export const shopItems: ShopItems = {
   },
   extraordinaryMeridians: {
     name: "Unlock The Extraordinary Meridians",
-    price: 3000,
+    price: 1500,
     condition: function (): boolean {
       return (
         gameState.shopUpgrades.extraMeridians == 0 &&
@@ -250,7 +250,7 @@ export const shopItems: ShopItems = {
       );
     },
     effect: function (): void {
-      gameState.shopUpgrades.extraMeridians = 2;
+      gameState.shopUpgrades.extraMeridians = 1;
     },
   },
 };
