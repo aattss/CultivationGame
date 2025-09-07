@@ -240,4 +240,17 @@ export const shopItems: ShopItems = {
       gameState.shopUpgrades.chakraTalentReroll = 2;
     },
   },
+  extraordinaryMeridians: {
+    name: "Unlock The Extraordinary Meridians",
+    price: 3000,
+    condition: function (): boolean {
+      return (
+        gameState.shopUpgrades.extraMeridians == 0 &&
+        gameState.enlightenment >= 1
+      );
+    },
+    effect: function (): void {
+      gameState.shopUpgrades.extraMeridians = 2;
+    },
+  },
 };

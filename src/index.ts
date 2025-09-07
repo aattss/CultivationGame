@@ -54,6 +54,10 @@ function resetSave(): void {
   GameInitializer.startLife();
 }
 
+function toggleExtraMeridians(): void {
+  gameState.extraMeridiansEnabled = !gameState.extraMeridiansEnabled;
+}
+
 // Extend the Window interface to include our global functions
 declare global {
   interface Window {
@@ -61,6 +65,7 @@ declare global {
     resetSave: () => void;
     gameSave: () => boolean;
     gameLoad: () => any;
+    toggleExtraMeridians: () => void;
     gameState: typeof gameState;
     GameLogic: typeof GameLogic;
     CultivationSystem: typeof CultivationSystem;
@@ -75,6 +80,7 @@ window.pauseGame = pauseGame;
 window.resetSave = resetSave;
 window.gameSave = gameSave;
 window.gameLoad = gameLoad;
+window.toggleExtraMeridians = toggleExtraMeridians;
 
 // Also expose game classes for debugging/console access
 window.gameState = gameState;
@@ -107,4 +113,5 @@ export {
   gameLoad,
   pauseGame,
   resetSave,
+  toggleExtraMeridians,
 };

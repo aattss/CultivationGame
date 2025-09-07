@@ -197,6 +197,7 @@ export class UISystem {
       "circulation grade": "circulation-skill-container", // Same container as circulation skill
       acupoints: "acupoints-container",
       "chakras opened": "chakras-container",
+      "toggle extra meridians": "toggle-extra-meridians-container",
     };
   }
 
@@ -326,6 +327,9 @@ export class UISystem {
       "circulation grade": gameState.circulationGrade,
       acupoints: gameState.acupoints,
       "chakras opened": gameState.openedChakras,
+      "toggle extra meridians": gameState.extraMeridiansEnabled
+        ? "Disable extra meridians"
+        : "Enable extra meridians",
     };
 
     // Only update log if it actually changed
@@ -346,6 +350,8 @@ export class UISystem {
       "acupoints-container": hasAdvancedMeridians,
       "chakras-container": hasAdvancedMeridians && hasAdvancedDantian,
       "circulation-skill-container": hasAdvancedMeridians,
+      "toggle-extra-meridians-container":
+        gameState.shopUpgrades.extraMeridians >= 1,
     };
 
     // Use consolidated update method

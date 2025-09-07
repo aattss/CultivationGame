@@ -28,7 +28,7 @@ export class GameLogic {
 
     // Qi purity degradation
     if (
-      gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT ||
+      gameState.meridiansOpened < gameState.meridianMax ||
       Math.random() <
         Math.pow(
           CONSTANTS.QI_PURITY_DEGRADATION_BASE,

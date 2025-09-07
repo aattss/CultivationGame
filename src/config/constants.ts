@@ -6,6 +6,7 @@ import type { Constants } from "../types/gameTypes.js";
  */
 export const CONSTANTS: Constants = {
   MERIDIAN_COUNT: 12,
+  EXTRAORDINARY_MERIDIANS: 8,
   BASE_AGE: 18,
   BASE_QI_PURITY: 100,
   MERIDIAN_DIFFICULTY_BASE: 200,

@@ -53,21 +53,29 @@ export class CultivationSystem {
   static cultivateMeridians(): void {
     let failed = false;
     let combo = 0;
-    while (gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT && !failed) {
+    while (gameState.meridiansOpened < gameState.meridianMax && !failed) {
       const difficulty =
         1.2 *
         (CONSTANTS.MERIDIAN_DIFFICULTY_BASE -
           gameState.meridianTalent[gameState.meridiansOpened] -
-          gameState.qiPurity);
+          gameState.qiPurity +
+          gameState.meridiansOpened >=
+        CONSTANTS.MERIDIAN_COUNT
+          ? 20
+          : 0);
 
-      if (Math.random() * (difficulty + combo * 6) >= gameState.vitality) {
+      const effective_vitality =
+        gameState.vitality -
+        Math.max(0, gameState.meridiansOpened - CONSTANTS.MERIDIAN_COUNT) * 10 -
+        (gameState.meridiansOpened >= CONSTANTS.MERIDIAN_COUNT ? 12 : 0);
+      if (Math.random() * (difficulty + combo * 6) >= effective_vitality) {
         failed = true;
         break;
       }
 
       if (
-        Math.random() * difficulty < gameState.vitality - 8 &&
-        Math.random() * difficulty < gameState.vitality - 16
+        Math.random() * difficulty < effective_vitality - 8 &&
+        Math.random() * difficulty < effective_vitality - 16
       ) {
         gameState.meridianFortune[gameState.meridiansOpened] = true;
       }
@@ -75,6 +83,9 @@ export class CultivationSystem {
       gameState.meridianCapacity +=
         gameState.meridianTalent[gameState.meridiansOpened];
 
+      if (gameState.meridiansOpened > CONSTANTS.MERIDIAN_COUNT) {
+        gameState.vitality += 10;
+      }
       gameState.meridiansOpened += 1;
       gameState.vitality += 1;
       if (gameState.meridiansOpened == 12) {
@@ -114,7 +125,9 @@ export class CultivationSystem {
 
       if (
         Math.random() * 500 * (gameState.enlightenment + 1) <
-        gameState.enlightenment - gameState.circulationGrade
+        ((gameState.circulationGrade - gameState.enlightenment) *
+          gameState.wisdom) /
+          10
       ) {
         gameState.enlightenment += 1;
         gameState.circulationGrade = 1;
@@ -265,13 +278,13 @@ export class CultivationSystem {
    * Main cultivation function that handles all cultivation activities
    */
   static cultivate(): void {
-    if (gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT) {
+    if (gameState.meridiansOpened < gameState.meridianMax) {
       this.cultivateMeridians();
     } else if (gameState.qi >= 100) {
       this.cultivateOrgans();
     }
 
-    if (gameState.meridiansOpened >= CONSTANTS.MERIDIAN_COUNT) {
+    if (gameState.meridiansOpened >= gameState.meridianMax) {
       this.cultivateCirculation();
     }
 
