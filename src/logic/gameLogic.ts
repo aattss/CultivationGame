@@ -42,9 +42,10 @@ export class GameLogic {
     gameState.vitality += gameState.cyclesCleansed;
     if (
       gameState.age - gameState.shopUpgrades.youthfullness >
-      gameState.qiPurity
+      gameState.qiPurity + gameState.longevity
     ) {
-      const loss = gameState.age / Math.max(1, gameState.qiPurity);
+      const loss =
+        gameState.age / Math.max(1, gameState.qiPurity + gameState.longevity);
       gameState.vitality -= Math.max(Math.ceil(Math.random() * loss - 0.5), 0);
     }
 
@@ -215,6 +216,9 @@ export class GameLogic {
           gameState.tribulationFailed[0] += 1;
         } else if (curPower > Math.random() * 6) {
           gameState.samsaraPoints += 2;
+          if (gameState.shopUpgrades.longevityUnlocked) {
+            gameState.longevity += 3;
+          }
         }
         if (gameState.vitality <= 0) {
           gameState.log.push(
@@ -238,6 +242,9 @@ export class GameLogic {
           gameState.tribulationFailed[1] += 1;
         } else if (curPower > Math.random() * 12) {
           gameState.samsaraPoints += 6;
+          if (gameState.shopUpgrades.longevityUnlocked) {
+            gameState.longevity += 3;
+          }
         }
         if (gameState.vitality <= 0) {
           gameState.log.push("At age 120, a demonic beast slew you.");
@@ -259,9 +266,14 @@ export class GameLogic {
           gameState.tribulationFailed[2] += 1;
         } else if (curPower > 5 + Math.random() * 15) {
           gameState.samsaraPoints += 24;
+          if (gameState.shopUpgrades.longevityUnlocked) {
+            gameState.longevity += 3;
+          }
         }
         if (gameState.vitality <= 0) {
-          gameState.log.push("At age 180, a demonic cultivator slew you.");
+          gameState.log.push(
+            "At age 180, you were slain by a demonic cultivator."
+          );
         }
         break;
       default:

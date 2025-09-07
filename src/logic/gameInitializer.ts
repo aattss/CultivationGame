@@ -48,6 +48,7 @@ export class GameInitializer {
     gameState.pillars = 0;
     gameState.pillarQuality = 0;
     gameState.dantianGrade = 0;
+    gameState.longevity = 0;
     gameState.daoRunes = gameState.daoRunes.map((value) =>
       Math.random() < 0.5 ? 0 : value
     );

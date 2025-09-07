@@ -242,15 +242,28 @@ export const shopItems: ShopItems = {
   },
   extraordinaryMeridians: {
     name: "Unlock The Extraordinary Meridians",
-    price: 1500,
+    price: 3000,
     condition: function (): boolean {
       return (
         gameState.shopUpgrades.extraMeridians == 0 &&
-        gameState.enlightenment >= 1
+        gameState.enlightenment >= 2
       );
     },
     effect: function (): void {
       gameState.shopUpgrades.extraMeridians = 1;
+    },
+  },
+  longevityIncrease: {
+    name: "Rewrite Life and Death Through Overcoming Tribulation",
+    price: 800,
+    condition: function (): boolean {
+      return (
+        gameState.shopUpgrades.longevityUnlocked == 0 &&
+        gameState.enlightenment >= 1
+      );
+    },
+    effect: function (): void {
+      gameState.shopUpgrades.longevityUnlocked = 1;
     },
   },
 };
