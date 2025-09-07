@@ -13,7 +13,13 @@ import { GameLogic } from "./logic/gameLogic.js";
 import { GameInitializer } from "./logic/gameInitializer.js";
 import { UISystem } from "./ui/uiSystem.js";
 import { GameLoop } from "./core/gameLoop.js";
-import { GamePersistence, gameSave, gameLoad } from "./core/persistence.js";
+import {
+  GamePersistence,
+  gameSave,
+  gameLoad,
+  saveToFile,
+  loadFromFile,
+} from "./core/persistence.js";
 
 /**
  * Initialize and start the game
@@ -58,6 +64,22 @@ function toggleExtraMeridians(): void {
   gameState.extraMeridiansEnabled = !gameState.extraMeridiansEnabled;
 }
 
+/**
+ * Global function to save game to file
+ * Exposed for HTML onclick handlers
+ */
+function saveGameToFile(): void {
+  saveToFile();
+}
+
+/**
+ * Global function to load game from file
+ * Exposed for HTML onclick handlers
+ */
+function loadGameFromFile(): void {
+  loadFromFile();
+}
+
 // Extend the Window interface to include our global functions
 declare global {
   interface Window {
@@ -65,6 +87,8 @@ declare global {
     resetSave: () => void;
     gameSave: () => boolean;
     gameLoad: () => any;
+    saveGameToFile: () => void;
+    loadGameFromFile: () => void;
     toggleExtraMeridians: () => void;
     gameState: typeof gameState;
     GameLogic: typeof GameLogic;
@@ -80,6 +104,8 @@ window.pauseGame = pauseGame;
 window.resetSave = resetSave;
 window.gameSave = gameSave;
 window.gameLoad = gameLoad;
+window.saveGameToFile = saveGameToFile;
+window.loadGameFromFile = loadGameFromFile;
 window.toggleExtraMeridians = toggleExtraMeridians;
 
 // Also expose game classes for debugging/console access
@@ -113,5 +139,7 @@ export {
   gameLoad,
   pauseGame,
   resetSave,
+  saveGameToFile,
+  loadGameFromFile,
   toggleExtraMeridians,
 };
