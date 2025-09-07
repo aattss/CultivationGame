@@ -12,7 +12,7 @@ import { GameLogic } from "./logic/gameLogic.js";
 import { GameInitializer } from "./logic/gameInitializer.js";
 import { UISystem } from "./ui/uiSystem.js";
 import { GameLoop } from "./core/gameLoop.js";
-import { GamePersistence, gameSave, gameLoad } from "./core/persistence.js";
+import { GamePersistence, gameSave, gameLoad, saveToFile, loadFromFile, } from "./core/persistence.js";
 /**
  * Initialize and start the game
  */
@@ -45,11 +45,31 @@ function resetSave() {
     GameInitializer.startGame();
     GameInitializer.startLife();
 }
+function toggleExtraMeridians() {
+    gameState.extraMeridiansEnabled = !gameState.extraMeridiansEnabled;
+}
+/**
+ * Global function to save game to file
+ * Exposed for HTML onclick handlers
+ */
+function saveGameToFile() {
+    saveToFile();
+}
+/**
+ * Global function to load game from file
+ * Exposed for HTML onclick handlers
+ */
+function loadGameFromFile() {
+    loadFromFile();
+}
 // Make functions globally available for HTML onclick handlers
 window.pauseGame = pauseGame;
 window.resetSave = resetSave;
 window.gameSave = gameSave;
 window.gameLoad = gameLoad;
+window.saveGameToFile = saveGameToFile;
+window.loadGameFromFile = loadGameFromFile;
+window.toggleExtraMeridians = toggleExtraMeridians;
 // Also expose game classes for debugging/console access
 window.gameState = gameState;
 window.GameLogic = GameLogic;
@@ -65,5 +85,5 @@ else {
     initializeGame();
 }
 // Export modules for potential external use
-export { CONSTANTS, gameState, shopItems, Utility, CultivationSystem, GameLogic, GameInitializer, UISystem, GameLoop, GamePersistence, gameSave, gameLoad, pauseGame, resetSave, };
+export { CONSTANTS, gameState, shopItems, Utility, CultivationSystem, GameLogic, GameInitializer, UISystem, GameLoop, GamePersistence, gameSave, gameLoad, pauseGame, resetSave, saveGameToFile, loadGameFromFile, toggleExtraMeridians, };
 //# sourceMappingURL=index.js.map

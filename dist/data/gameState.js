@@ -21,8 +21,10 @@ export function createInitialGameState() {
         meridianTalent: Array(12).fill(0),
         meridianCapacity: 0,
         meridiansOpened: 0,
-        meridianEx: Array(12).fill(0),
-        meridianFortune: Array(12).fill(false),
+        meridianEx: Array(20).fill(0),
+        meridianFortune: Array(20).fill(false),
+        meridianMax: CONSTANTS.MERIDIAN_COUNT,
+        extraMeridiansEnabled: false,
         // Qi system
         qi: 0,
         qiPurity: CONSTANTS.BASE_QI_PURITY,
@@ -94,6 +96,7 @@ export function createInitialGameState() {
             daoRuneReroll: 0,
             organTalentReroll: 0,
             chakraTalentReroll: 0,
+            extraMeridians: 0,
         },
     };
 }

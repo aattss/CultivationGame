@@ -15,6 +15,7 @@ export interface ShopUpgrades {
     daoRuneReroll: number;
     organTalentReroll: number;
     chakraTalentReroll: number;
+    extraMeridians: number;
 }
 export interface LifeStats {
     meridiansOpenedAtDeath: number;
@@ -35,6 +36,8 @@ export interface GameState {
     meridiansOpened: number;
     meridianEx: number[];
     meridianFortune: boolean[];
+    meridianMax: number;
+    extraMeridiansEnabled: boolean;
     qi: number;
     qiPurity: number;
     qiFolds: number;
@@ -88,6 +91,7 @@ export interface ShopItems {
 }
 export interface Constants {
     MERIDIAN_COUNT: number;
+    EXTRAORDINARY_MERIDIANS: number;
     BASE_AGE: number;
     BASE_QI_PURITY: number;
     MERIDIAN_DIFFICULTY_BASE: number;

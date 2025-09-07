@@ -14,8 +14,9 @@ export class GameInitializer {
      * Initialize a completely new game
      */
     static startGame() {
-        gameState.meridianEx = Array(CONSTANTS.MERIDIAN_COUNT).fill(0);
-        gameState.meridianFortune = Array(CONSTANTS.MERIDIAN_COUNT).fill(false);
+        gameState.meridianEx = Array(CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS).fill(0);
+        gameState.meridianFortune = Array(CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS).fill(false);
+        gameState.extraMeridiansEnabled = false;
         gameState.organEx = Array(gameState.organEx.length).fill(0);
         gameState.log.push("You began your journey");
     }
@@ -23,6 +24,13 @@ export class GameInitializer {
      * Start a new life cycle with fresh stats and progression
      */
     static startLife() {
+        if (gameState.extraMeridiansEnabled) {
+            gameState.meridianMax =
+                CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS;
+        }
+        else {
+            gameState.meridianMax = CONSTANTS.MERIDIAN_COUNT;
+        }
         // Reset life stats
         gameState.meridianCapacity = 0;
         gameState.meridiansOpened = 0;
@@ -110,7 +118,7 @@ export class GameInitializer {
      * @private
      */
     static _generateMeridianTalents() {
-        gameState.meridianTalent = Array.from({ length: CONSTANTS.MERIDIAN_COUNT }, () => Utility.rollOneDice(100, 1));
+        gameState.meridianTalent = Array.from({ length: gameState.meridianMax }, () => Utility.rollOneDice(100, 1));
         // Apply fortune rerolls
         gameState.meridianTalent.forEach((talent, index) => {
             if (gameState.meridianFortune[index]) {

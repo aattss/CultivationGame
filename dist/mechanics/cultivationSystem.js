@@ -42,21 +42,28 @@ export class CultivationSystem {
     static cultivateMeridians() {
         let failed = false;
         let combo = 0;
-        while (gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT && !failed) {
+        while (gameState.meridiansOpened < gameState.meridianMax && !failed) {
             const difficulty = 1.2 *
                 (CONSTANTS.MERIDIAN_DIFFICULTY_BASE -
                     gameState.meridianTalent[gameState.meridiansOpened] -
-                    gameState.qiPurity);
-            if (Math.random() * (difficulty + combo * 5) >= gameState.vitality) {
+                    gameState.qiPurity +
+                    (gameState.meridiansOpened >= CONSTANTS.MERIDIAN_COUNT ? 20 : 0));
+            const effective_vitality = gameState.vitality -
+                Math.max(0, gameState.meridiansOpened - CONSTANTS.MERIDIAN_COUNT) * 10 -
+                (gameState.meridiansOpened >= CONSTANTS.MERIDIAN_COUNT ? 12 : 0);
+            if (Math.random() * (difficulty + combo * 6) >= effective_vitality) {
                 failed = true;
                 break;
             }
-            if (Math.random() * difficulty < gameState.vitality - 8 &&
-                Math.random() * difficulty < gameState.vitality - 16) {
+            if (Math.random() * difficulty < effective_vitality - 8 &&
+                Math.random() * difficulty < effective_vitality - 16) {
                 gameState.meridianFortune[gameState.meridiansOpened] = true;
             }
             gameState.meridianCapacity +=
                 gameState.meridianTalent[gameState.meridiansOpened];
+            if (gameState.meridiansOpened > CONSTANTS.MERIDIAN_COUNT) {
+                gameState.vitality += 10;
+            }
             gameState.meridiansOpened += 1;
             gameState.vitality += 1;
             if (gameState.meridiansOpened == 12) {
@@ -86,7 +93,9 @@ export class CultivationSystem {
             gameState.circulationProficiency -= circulationDifficulty;
             gameState.circulationSkill += 1;
             if (Math.random() * 500 * (gameState.enlightenment + 1) <
-                gameState.enlightenment - gameState.circulationGrade) {
+                ((gameState.circulationGrade - gameState.enlightenment) *
+                    gameState.wisdom) /
+                    10) {
                 gameState.enlightenment += 1;
                 gameState.circulationGrade = 1;
                 gameState.log.push("You had a glimpse of enlightenment and started over with your cultivation technique.");
@@ -118,8 +127,8 @@ export class CultivationSystem {
         gameState.qi -= qiTransferred;
         gameState.organProgress += qiTransferred * (1 + gameState.qiPurity / 100);
         const organDifficulty = 10 *
-            (200 +
-                100 * Math.pow(gameState.cyclesCleansed, 2) -
+            (150 +
+                150 * Math.pow(gameState.cyclesCleansed, 2) -
                 gameState.vitality -
                 (gameState.cyclesCleansed + 2) *
                     gameState.organTalent[gameState.organsPurified]);
@@ -206,13 +215,13 @@ export class CultivationSystem {
      * Main cultivation function that handles all cultivation activities
      */
     static cultivate() {
-        if (gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT) {
+        if (gameState.meridiansOpened < gameState.meridianMax) {
             this.cultivateMeridians();
         }
         else if (gameState.qi >= 100) {
             this.cultivateOrgans();
         }
-        if (gameState.meridiansOpened >= CONSTANTS.MERIDIAN_COUNT) {
+        if (gameState.meridiansOpened >= gameState.meridianMax) {
             this.cultivateCirculation();
         }
         // Check for qi folding
@@ -227,7 +236,7 @@ export class CultivationSystem {
         if (gameState.qi > CONSTANTS.PILLAR_QI_COST &&
             gameState.qi >= 0.95 * CultivationSystem.getQiCapacity()) {
             if (gameState.pillars < 8) {
-                if (gameState.vitality > 30) {
+                if (gameState.cyclesCleansed > 0) {
                     this.formPillar();
                 }
                 else {

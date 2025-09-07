@@ -23,7 +23,7 @@ export class GameLogic {
         }
         GameLogic.tribulation();
         // Qi purity degradation
-        if (gameState.meridiansOpened < CONSTANTS.MERIDIAN_COUNT ||
+        if (gameState.meridiansOpened < gameState.meridianMax ||
             Math.random() <
                 Math.pow(CONSTANTS.QI_PURITY_DEGRADATION_BASE, gameState.circulationSkill + gameState.circulationGrade)) {
             gameState.qiPurity -= 1;
@@ -59,10 +59,10 @@ export class GameLogic {
             }
             gameState.log.push("Life " + gameState.totalLives + ": You died at age " + gameState.age);
             gameState.totalLives += 1;
-            let pointGain = Math.floor(gameState.age / 40) +
+            let pointGain = Math.floor(Math.pow(gameState.age / 40, 2)) +
                 gameState.meridiansOpened * 2 +
                 gameState.qiFolds * 4 +
-                gameState.pillars * 2 +
+                gameState.pillars * 3 +
                 gameState.dantianGrade * 3 +
                 gameState.cyclesCleansed * 2 +
                 Math.floor(gameState.acupoints / 100);
@@ -116,7 +116,10 @@ export class GameLogic {
                     if (gameState.meridiansOpened >= 12) {
                         gameState.log.push("You had an epiphany with your circulation technique.");
                         gameState.circulationProficiency +=
-                            gameState.comprehension * magnitude;
+                            Math.pow(gameState.comprehension / 10, 2) *
+                                gameState.daoRuneMultiplier *
+                                magnitude *
+                                Utility.rollOneDice(4, 1);
                     }
                     break;
                 case 4:

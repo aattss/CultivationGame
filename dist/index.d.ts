@@ -22,12 +22,26 @@ declare function pauseGame(): void;
  * Exposed for backward compatibility with existing UI
  */
 declare function resetSave(): void;
+declare function toggleExtraMeridians(): void;
+/**
+ * Global function to save game to file
+ * Exposed for HTML onclick handlers
+ */
+declare function saveGameToFile(): void;
+/**
+ * Global function to load game from file
+ * Exposed for HTML onclick handlers
+ */
+declare function loadGameFromFile(): void;
 declare global {
     interface Window {
         pauseGame: () => void;
         resetSave: () => void;
         gameSave: () => boolean;
         gameLoad: () => any;
+        saveGameToFile: () => void;
+        loadGameFromFile: () => void;
+        toggleExtraMeridians: () => void;
         gameState: typeof gameState;
         GameLogic: typeof GameLogic;
         CultivationSystem: typeof CultivationSystem;
@@ -36,5 +50,5 @@ declare global {
         GamePersistence: typeof GamePersistence;
     }
 }
-export { CONSTANTS, gameState, shopItems, Utility, CultivationSystem, GameLogic, GameInitializer, UISystem, GameLoop, GamePersistence, gameSave, gameLoad, pauseGame, resetSave, };
+export { CONSTANTS, gameState, shopItems, Utility, CultivationSystem, GameLogic, GameInitializer, UISystem, GameLoop, GamePersistence, gameSave, gameLoad, pauseGame, resetSave, saveGameToFile, loadGameFromFile, toggleExtraMeridians, };
 //# sourceMappingURL=index.d.ts.map

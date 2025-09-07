@@ -129,7 +129,7 @@ export class UISystem {
             "meridian talent": "meridian-talent-container",
             "average age": null, // Always visible
             "highest qi folds": "highest-qi-folds-container",
-            "highest dantian grade": null, // Part of advanced stats, controlled by logic
+            "highest dantian grade": "highest-dantian-container", // Part of advanced stats, controlled by logic
             "average qi folds": "average-qi-folds-container",
             "highest chakras": "highest-chakras-container",
             "average primary meridians": "average-primary-meridians-container",
@@ -148,13 +148,15 @@ export class UISystem {
             comprehension: "comprehension-container",
             "qi capacity": "qi-capacity-container",
             "qi folds": "qi-folds-container",
-            "cycles cleansed": "qi-capacity-container", // Same container as qi capacity
-            pillars: "qi-capacity-container", // Same container as qi capacity
-            "dantian grade": "qi-capacity-container", // Same container as qi capacity
+            "cycles cleansed": "dantian-formation-container", // Same container as qi capacity
+            "organs purified": "qi-capacity-container", // Same container as qi capacity
+            pillars: "dantian-formation-container", // Same container as qi capacity
+            "dantian grade": "dantian-formation-container", // Same container as qi capacity
             "circulation skill": "circulation-skill-container",
             "circulation grade": "circulation-skill-container", // Same container as circulation skill
             acupoints: "acupoints-container",
             "chakras opened": "chakras-container",
+            "toggle extra meridians": "toggle-extra-meridians-container",
         };
     }
     /**
@@ -183,7 +185,7 @@ export class UISystem {
         // Clear cache for new life to ensure fresh state
         this.clearCache();
         // Consolidated logic: determine visibility states and element values together
-        const isAdvancedPlayer = gameState.highestMeridian >= 12;
+        const hasOpenedMeridians = gameState.highestMeridian >= 12;
         const hasChakras = gameState.highestChakra > 0;
         const hasAgeAt12thMeridian = gameState.averageLifeStats.ageAt12thMeridian != null;
         const showMeridianTalent = gameState.totalLives > 8;
@@ -202,14 +204,15 @@ export class UISystem {
         // Prepare container states using the same consolidated logic
         const containerStates = {
             "meridian-talent-container": showMeridianTalent,
-            "highest-qi-folds-container": isAdvancedPlayer,
-            "highest-chakras-container": isAdvancedPlayer && hasChakras,
-            "comprehension-container": isAdvancedPlayer,
-            "average-qi-folds-container": isAdvancedPlayer,
-            "average-primary-meridians-container": isAdvancedPlayer && hasAgeAt12thMeridian,
-            "highest-meridian-container": !isAdvancedPlayer,
-            "average-meridians-container": (!isAdvancedPlayer && !hasAgeAt12thMeridian) ||
-                (isAdvancedPlayer && !hasAgeAt12thMeridian),
+            "highest-qi-folds-container": hasOpenedMeridians,
+            "highest-chakras-container": hasOpenedMeridians && hasChakras,
+            "comprehension-container": hasOpenedMeridians,
+            "average-qi-folds-container": hasOpenedMeridians,
+            "average-primary-meridians-container": hasOpenedMeridians && hasAgeAt12thMeridian,
+            "highest-meridian-container": !hasOpenedMeridians,
+            "highest-dantian-container": gameState.highestDantian > 0,
+            "average-meridians-container": (!hasOpenedMeridians && !hasAgeAt12thMeridian) ||
+                (hasOpenedMeridians && !hasAgeAt12thMeridian),
         };
         // Use consolidated update method
         this.updateUIWithConsolidatedLogic({
@@ -234,6 +237,7 @@ export class UISystem {
         // Consolidated logic: determine all visibility states once
         const hasAdvancedMeridians = gameState.meridiansOpened >= 12;
         const hasComprehension = gameState.highestMeridian >= 12;
+        const hasCleanseCycle = gameState.cyclesCleansed > 0;
         const hasAdvancedDantian = gameState.dantianGrade > 0;
         const showVitality = gameState.totalLives > 2;
         const showWisdom = gameState.totalLives > 14;
@@ -253,6 +257,7 @@ export class UISystem {
             comprehension: gameState.comprehension,
             "qi capacity": CultivationSystem.getQiCapacity(),
             "qi folds": gameState.qiFolds,
+            "organs purified": gameState.organsPurified,
             "cycles cleansed": gameState.cyclesCleansed,
             pillars: gameState.pillars,
             "dantian grade": gameState.dantianGrade,
@@ -260,6 +265,9 @@ export class UISystem {
             "circulation grade": gameState.circulationGrade,
             acupoints: gameState.acupoints,
             "chakras opened": gameState.openedChakras,
+            "toggle extra meridians": gameState.extraMeridiansEnabled
+                ? "Disable extra meridians"
+                : "Enable extra meridians",
         };
         // Only update log if it actually changed
         if (logUpdated) {
@@ -273,10 +281,12 @@ export class UISystem {
             "qi-purity-container": showQiPurity,
             "comprehension-container": hasComprehension,
             "qi-capacity-container": hasAdvancedMeridians,
+            "dantian-formation-container": hasCleanseCycle,
             "qi-folds-container": hasAdvancedMeridians,
             "acupoints-container": hasAdvancedMeridians,
             "chakras-container": hasAdvancedMeridians && hasAdvancedDantian,
             "circulation-skill-container": hasAdvancedMeridians,
+            "toggle-extra-meridians-container": gameState.shopUpgrades.extraMeridians >= 1,
         };
         // Use consolidated update method
         this.updateUIWithConsolidatedLogic({

@@ -12,6 +12,16 @@
         <br />
         <button onclick="resetSave()">Reset Save</button>
         <br />
+        <button onclick="saveGameToFile()">Save to File</button>
+        <br />
+        <button onclick="loadGameFromFile()">Load from File</button>
+        <br />
+        <div id="toggle-extra-meridians-container">
+          <button id="toggle extra meridians" onclick="toggleExtraMeridians()">
+            Disable Extra Meridians
+          </button>
+          <br />
+        </div>
         <br />
 
         <!-- Tab Container -->
@@ -27,8 +37,6 @@
 
           <!-- Current Stats Tab -->
           <div id="current-tab" class="tab-content active">
-            Samsara Points: <span id="samsara-points"></span>
-            <br />
             Power Level: <span id="combat power"></span>
             <br />
             Meridians opened: <span id="meridian opened"></span>
@@ -44,6 +52,10 @@
             <div id="qi-folds-container">
               Qi folds: <span id="qi folds"></span>
               <br />
+              Organs Purified: <span id="organs purified"></span>
+              <br />
+            </div>
+            <div id="dantian-formation-container">
               Organ Cleanse Cycles: <span id="cycles cleansed"></span>
               <br />
               Pillars: <span id="pillars"></span>
@@ -98,6 +110,8 @@
             <div id="highest-qi-folds-container">
               Highest Qi Folds: <span id="highest qi folds"></span>
               <br />
+            </div>
+            <div id="highest-dantian-container">
               Highest Dantian Grade: <span id="highest dantian grade"></span>
               <br />
             </div>
@@ -128,6 +142,8 @@
 
         <div class="upgrade-shop">
           <h3>Growth</h3>
+          <br />
+          Samsara Points: <span id="samsara-points"></span>
           <div id="upgrade-list"></div>
         </div>
       </div>
