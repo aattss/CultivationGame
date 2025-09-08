@@ -17,6 +17,7 @@ export function createInitialGameState() {
         luck: 0,
         dead: false,
         startAge: 0,
+        longevity: 0,
         // Meridian system
         meridianTalent: Array(12).fill(0),
         meridianCapacity: 0,
@@ -97,6 +98,7 @@ export function createInitialGameState() {
             organTalentReroll: 0,
             chakraTalentReroll: 0,
             extraMeridians: 0,
+            longevityUnlocked: 0,
         },
     };
 }

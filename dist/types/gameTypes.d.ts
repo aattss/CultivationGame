@@ -16,6 +16,7 @@ export interface ShopUpgrades {
     organTalentReroll: number;
     chakraTalentReroll: number;
     extraMeridians: number;
+    longevityUnlocked: number;
 }
 export interface LifeStats {
     meridiansOpenedAtDeath: number;
@@ -31,6 +32,7 @@ export interface GameState {
     luck: number;
     dead: boolean;
     startAge: number;
+    longevity: number;
     meridianTalent: number[];
     meridianCapacity: number;
     meridiansOpened: number;

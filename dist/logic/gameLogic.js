@@ -31,8 +31,8 @@ export class GameLogic {
         // Aging effects
         gameState.vitality += gameState.cyclesCleansed;
         if (gameState.age - gameState.shopUpgrades.youthfullness >
-            gameState.qiPurity) {
-            const loss = gameState.age / Math.max(1, gameState.qiPurity);
+            gameState.qiPurity + gameState.longevity) {
+            const loss = gameState.age / Math.max(1, gameState.qiPurity + gameState.longevity);
             gameState.vitality -= Math.max(Math.ceil(Math.random() * loss - 0.5), 0);
         }
         // Death check
@@ -59,13 +59,14 @@ export class GameLogic {
             }
             gameState.log.push("Life " + gameState.totalLives + ": You died at age " + gameState.age);
             gameState.totalLives += 1;
-            let pointGain = Math.floor(Math.pow(gameState.age / 40, 2)) +
+            let pointGain = Math.floor(gameState.age / 40) +
                 gameState.meridiansOpened * 2 +
                 gameState.qiFolds * 4 +
                 gameState.pillars * 3 +
-                gameState.dantianGrade * 3 +
-                gameState.cyclesCleansed * 2 +
-                Math.floor(gameState.acupoints / 100);
+                gameState.dantianGrade * 4 +
+                gameState.organsPurified +
+                gameState.cyclesCleansed * 5 +
+                gameState.openedChakras * 8;
             gameState.samsaraPoints += pointGain;
         }
     }
@@ -157,6 +158,9 @@ export class GameLogic {
                 }
                 else if (curPower > Math.random() * 6) {
                     gameState.samsaraPoints += 2;
+                    if (gameState.shopUpgrades.longevityUnlocked) {
+                        gameState.longevity += 3;
+                    }
                 }
                 if (gameState.vitality <= 0) {
                     gameState.log.push("At age 60, your village was robbed by bandits and you died.");
@@ -177,6 +181,9 @@ export class GameLogic {
                 }
                 else if (curPower > Math.random() * 12) {
                     gameState.samsaraPoints += 6;
+                    if (gameState.shopUpgrades.longevityUnlocked) {
+                        gameState.longevity += 3;
+                    }
                 }
                 if (gameState.vitality <= 0) {
                     gameState.log.push("At age 120, a demonic beast slew you.");
@@ -197,9 +204,12 @@ export class GameLogic {
                 }
                 else if (curPower > 5 + Math.random() * 15) {
                     gameState.samsaraPoints += 24;
+                    if (gameState.shopUpgrades.longevityUnlocked) {
+                        gameState.longevity += 3;
+                    }
                 }
                 if (gameState.vitality <= 0) {
-                    gameState.log.push("At age 180, a demonic cultivator slew you.");
+                    gameState.log.push("At age 180, you were slain by a demonic cultivator.");
                 }
                 break;
             default:
