@@ -18,6 +18,7 @@ export interface ShopUpgrades {
   chakraTalentReroll: number;
   extraMeridians: number;
   longevityUnlocked: number;
+  extraPillars: number;
 }
 
 export interface LifeStats {
@@ -76,6 +77,7 @@ export interface GameState {
   pillarQuality: number;
   dantianGrade: number;
   dantianRerolls: number;
+  pillarEx: number;
 
   // Chakra System
   openedChakras: number;

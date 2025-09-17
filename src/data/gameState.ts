@@ -58,6 +58,7 @@ export function createInitialGameState(): GameState {
     // Core Formation system
     pillars: 0,
     pillarQuality: 0,
+    pillarEx: 0,
     dantianGrade: 0,
     dantianRerolls: 0,
 
@@ -116,6 +117,7 @@ export function createInitialGameState(): GameState {
       chakraTalentReroll: 0,
       extraMeridians: 0,
       longevityUnlocked: 0,
+      extraPillars: 0,
     },
   };
 }

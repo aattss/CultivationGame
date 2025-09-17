@@ -192,12 +192,15 @@ export class CultivationSystem {
    */
   static formPillar(): void {
     gameState.qi -= CONSTANTS.PILLAR_QI_COST;
-    const success = Math.min(6, Math.random() * gameState.qiFolds);
+    const success = Math.min(6 + 2 * gameState.pillarEx, Math.random() * gameState.qiFolds);
     if (success > 2) {
       gameState.pillars += 1;
       gameState.vitality += Math.floor(success * 8);
       gameState.pillarQuality += Math.floor(success / 2);
-      if (gameState.pillars < 8 && gameState.qi >= CONSTANTS.PILLAR_QI_COST) {
+      if (gameState.pillarQuality > 8 * (3 + gameState.pillarEx)) {
+        gameState.pillarEx += 1;
+      }
+      if (gameState.pillars < 8 + 4 * gameState.shopUpgrades.extraPillars && gameState.qi >= CONSTANTS.PILLAR_QI_COST) {
         CultivationSystem.formPillar();
       }
     } else {
@@ -264,7 +267,7 @@ export class CultivationSystem {
     const acupointsOpened = Math.floor(
       Math.min(
         gameState.qi / acupointCost / 3,
-        Math.sqrt(gameState.vitality) * acupointCost
+        Math.sqrt(gameState.vitality)
       )
     );
     gameState.qi -= acupointCost * acupointsOpened;
@@ -301,7 +304,7 @@ export class CultivationSystem {
       gameState.qi > CONSTANTS.PILLAR_QI_COST &&
       gameState.qi >= 0.95 * CultivationSystem.getQiCapacity()
     ) {
-      if (gameState.pillars < 8) {
+      if (gameState.pillars < 8 + 4 * gameState.shopUpgrades.extraPillars) {
         if (gameState.cyclesCleansed > 0) {
           this.formPillar();
         } else {

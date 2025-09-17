@@ -254,7 +254,7 @@ export const shopItems: ShopItems = {
     },
   },
   longevityIncrease: {
-    name: "Rewrite Life and Death Through Overcoming Tribulation",
+    name: "Rewrite Life And Death Through Overcoming Tribulation",
     price: 800,
     condition: function (): boolean {
       return (
@@ -264,6 +264,19 @@ export const shopItems: ShopItems = {
     },
     effect: function (): void {
       gameState.shopUpgrades.longevityUnlocked = 1;
+    },
+  },
+  extraPillars: {
+    name: "Perfect Your Pillar Foundation With The Zodiac",
+    price: 5000,
+    condition: function (): boolean {
+      return (
+        gameState.shopUpgrades.extraPillars == 0 &&
+        gameState.enlightenment >= 3
+      );
+    },
+    effect: function (): void {
+      gameState.shopUpgrades.extraPillars = 1;
     },
   },
 };
