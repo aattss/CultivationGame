@@ -184,7 +184,7 @@ export class GameLogic {
                 Math.ceil(
                   magnitude *
                     CultivationSystem.getCombatPower() *
-                    Utility.rollOneDice(10)
+                    Utility.rollOneDice(gameState.luck, 1)
                 )
             );
           }
@@ -218,7 +218,8 @@ export class GameLogic {
         } else if (curPower > Math.random() * 6) {
           gameState.samsaraPoints += 2;
           if (gameState.shopUpgrades.longevityUnlocked) {
-            gameState.longevity += 3;
+            gameState.longevity += 2;
+            GameLogic.LuckyEncounter();
           }
         }
         if (gameState.vitality <= 0) {
@@ -244,7 +245,8 @@ export class GameLogic {
         } else if (curPower > Math.random() * 12) {
           gameState.samsaraPoints += 6;
           if (gameState.shopUpgrades.longevityUnlocked) {
-            gameState.longevity += 3;
+            gameState.longevity += 2;
+            GameLogic.LuckyEncounter();
           }
         }
         if (gameState.vitality <= 0) {
@@ -268,12 +270,69 @@ export class GameLogic {
         } else if (curPower > 5 + Math.random() * 15) {
           gameState.samsaraPoints += 24;
           if (gameState.shopUpgrades.longevityUnlocked) {
-            gameState.longevity += 3;
+            gameState.longevity += 2;
+            GameLogic.LuckyEncounter();
           }
         }
         if (gameState.vitality <= 0) {
           gameState.log.push(
             "At age 180, you were slain by a demonic cultivator."
+          );
+        }
+        break;
+      case 360:
+        if (
+          curPower <
+          11 + Math.random() * 15 - Math.log10(gameState.tribulationFailed[3])
+        ) {
+          gameState.vitality -= 4677;
+          gameState.tribulationFailed[3] += 1;
+        } else if (
+          // eslint-disable-next-line no-dupe-else-if
+          curPower <
+          11 + Math.random() * 15 - Math.log10(gameState.tribulationFailed[3])
+        ) {
+          gameState.vitality -= 2268;
+          gameState.tribulationFailed[3] += 1;
+        } else if (curPower > 11 + Math.random() * 19) {
+          gameState.samsaraPoints += 96;
+          if (gameState.shopUpgrades.longevityUnlocked) {
+            gameState.longevity += 2;
+            GameLogic.LuckyEncounter();
+            GameLogic.LuckyEncounter();
+          }
+        }
+        if (gameState.vitality <= 0) {
+          gameState.log.push(
+            "At age 360, you were imprisoned and slain by a wicked tyrant."
+          );
+        }
+        break;
+      case 540:
+        if (
+          curPower <
+          18 + Math.random() * 22 - Math.log10(gameState.tribulationFailed[4])
+        ) {
+          gameState.vitality -= 11111;
+          gameState.tribulationFailed[4] += 1;
+        } else if (
+          // eslint-disable-next-line no-dupe-else-if
+          curPower <
+          18 + Math.random() * 22 - Math.log10(gameState.tribulationFailed[4])
+        ) {
+          gameState.vitality -= 5777;
+          gameState.tribulationFailed[4] += 1;
+        } else if (curPower > 18 + Math.random() * 28) {
+          gameState.samsaraPoints += 244;
+          if (gameState.shopUpgrades.longevityUnlocked) {
+            gameState.longevity += 1;
+            GameLogic.LuckyEncounter();
+            GameLogic.LuckyEncounter();
+          }
+        }
+        if (gameState.vitality <= 0) {
+          gameState.log.push(
+            "At age 540, you were devoured by a demon lord."
           );
         }
         break;

@@ -28,7 +28,7 @@ export class CultivationSystem {
       Math.max(0, Math.log(gameState.vitality) / Math.log(7)) +
       Math.max(0, Math.log10(gameState.qi)) +
       gameState.qiFolds / 1.5 +
-      gameState.dantianGrade / 4;
+      gameState.dantianGrade / 4 + Utility.sum(gameState.daoTreasureQuality)/50;
     return Math.round(combatPower * 10) / 10;
   }
 
@@ -343,5 +343,19 @@ export class CultivationSystem {
       Utility.sum(gameState.daoRunes)
     );
     gameState.seenDaoRune = true;
+  }
+
+  static condenseDaoTreasure(): void {
+    const treasureCost = 1400 * Math.pow(1.5, gameState.treasureCondenseAttempts);
+    if (gameState.qi / 4 > treasureCost) {
+      gameState.qi -= treasureCost
+      const quality = Utility.rollOneDice(gameState.comprehension + gameState.treasureCondenseAttempts * 2, 0);
+      if (gameState.wisdom / (11) > Math.pow(gameState.daoTreasureQuality.length, 1.2)) {
+        gameState.daoTreasureQuality.push(quality);
+      } else {
+        const minTreasure = Utility.findMinIndex(gameState.daoTreasureQuality);
+        gameState.daoTreasureQuality[minTreasure] = quality;
+      }
+    }
   }
 }

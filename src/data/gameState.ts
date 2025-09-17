@@ -65,6 +65,9 @@ export function createInitialGameState(): GameState {
     openedChakras: 0,
     chakraTalent: Array(7).fill(0),
 
+    daoTreasureQuality: [],
+    treasureCondenseAttempts: 0,
+
     // Game settings
     restartOnDeath: true,
     pauseState: false,

@@ -81,6 +81,10 @@ export interface GameState {
   openedChakras: number;
   chakraTalent: number[];
 
+  // Treasure system
+  daoTreasureQuality: number[];
+  treasureCondenseAttempts: number;
+
   // Game settings
   restartOnDeath: boolean;
   pauseState: boolean;

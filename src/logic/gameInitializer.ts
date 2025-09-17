@@ -71,6 +71,9 @@ export class GameInitializer {
       ageAt12thMeridian: null,
     };
 
+    gameState.daoTreasureQuality = [];
+    gameState.treasureCondenseAttempts = 0;
+
     // Generate random stats
     this._generateOrganTalents();
     this._generateChakraTalents();
