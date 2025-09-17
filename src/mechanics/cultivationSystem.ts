@@ -311,6 +311,7 @@ export class CultivationSystem {
         this.formDantian();
       } else {
         CultivationSystem.cultivateChakras();
+        CultivationSystem.condenseDaoTreasure();
         CultivationSystem.cultivateAcupoints();
       }
     }
