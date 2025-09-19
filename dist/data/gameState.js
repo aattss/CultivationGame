@@ -49,11 +49,14 @@ export function createInitialGameState() {
         // Core Formation system
         pillars: 0,
         pillarQuality: 0,
+        pillarEx: 0,
         dantianGrade: 0,
         dantianRerolls: 0,
         // Chakra System
         openedChakras: 0,
         chakraTalent: Array(7).fill(0),
+        daoTreasureQuality: [],
+        treasureCondenseAttempts: 0,
         // Game settings
         restartOnDeath: true,
         pauseState: false,
@@ -99,6 +102,7 @@ export function createInitialGameState() {
             chakraTalentReroll: 0,
             extraMeridians: 0,
             longevityUnlocked: 0,
+            extraPillars: 0,
         },
     };
 }

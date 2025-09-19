@@ -51,5 +51,6 @@ export declare class CultivationSystem {
      * Gain a random dao rune for cultivation bonus
      */
     static gainRandomDaoRune(): void;
+    static condenseDaoTreasure(): void;
 }
 //# sourceMappingURL=cultivationSystem.d.ts.map

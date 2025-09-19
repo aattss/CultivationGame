@@ -23,7 +23,7 @@ export class CultivationSystem {
         const combatPower = Math.max(0, Math.log(gameState.vitality) / Math.log(7)) +
             Math.max(0, Math.log10(gameState.qi)) +
             gameState.qiFolds / 1.5 +
-            gameState.dantianGrade / 4;
+            gameState.dantianGrade / 4 + Utility.sum(gameState.daoTreasureQuality) / 30;
         return Math.round(combatPower * 10) / 10;
     }
     /**
@@ -104,7 +104,9 @@ export class CultivationSystem {
                 gameState.wisdom * gameState.circulationSkill) {
                 gameState.circulationInsights += 1;
                 if (gameState.circulationInsights * Math.random() >
-                    gameState.circulationGrade) {
+                    gameState.circulationGrade
+                    && gameState.circulationInsights * Math.random() >
+                        gameState.circulationGrade) {
                     gameState.log.push("You had an epiphany and evolved your circulation technique.");
                     gameState.circulationGrade += 1;
                     gameState.log.push("It is now grade " + gameState.circulationGrade);
@@ -147,12 +149,15 @@ export class CultivationSystem {
      */
     static formPillar() {
         gameState.qi -= CONSTANTS.PILLAR_QI_COST;
-        const success = Math.min(6, Math.random() * gameState.qiFolds);
+        const success = Math.min(6 + 2 * gameState.pillarEx, Math.random() * gameState.qiFolds);
         if (success > 2) {
             gameState.pillars += 1;
             gameState.vitality += Math.floor(success * 8);
             gameState.pillarQuality += Math.floor(success / 2);
-            if (gameState.pillars < 8 && gameState.qi >= CONSTANTS.PILLAR_QI_COST) {
+            if (gameState.pillarQuality > 8 * (3 + gameState.pillarEx)) {
+                gameState.pillarEx += 1;
+            }
+            if (gameState.pillars < 8 + 4 * gameState.shopUpgrades.extraPillars && gameState.qi >= CONSTANTS.PILLAR_QI_COST) {
                 CultivationSystem.formPillar();
             }
         }
@@ -207,7 +212,7 @@ export class CultivationSystem {
      */
     static cultivateAcupoints() {
         const acupointCost = Math.max(1, 300 + gameState.acupoints - 2 * Math.pow(gameState.qiFolds, 2));
-        const acupointsOpened = Math.floor(Math.min(gameState.qi / acupointCost / 3, Math.sqrt(gameState.vitality) * acupointCost));
+        const acupointsOpened = Math.floor(Math.min(gameState.qi / acupointCost / 3, Math.sqrt(gameState.vitality)));
         gameState.qi -= acupointCost * acupointsOpened;
         gameState.acupoints += acupointsOpened;
     }
@@ -235,7 +240,7 @@ export class CultivationSystem {
         }
         if (gameState.qi > CONSTANTS.PILLAR_QI_COST &&
             gameState.qi >= 0.95 * CultivationSystem.getQiCapacity()) {
-            if (gameState.pillars < 8) {
+            if (gameState.pillars < 8 + 4 * gameState.shopUpgrades.extraPillars) {
                 if (gameState.cyclesCleansed > 0) {
                     this.formPillar();
                 }
@@ -248,6 +253,7 @@ export class CultivationSystem {
             }
             else {
                 CultivationSystem.cultivateChakras();
+                CultivationSystem.condenseDaoTreasure();
                 CultivationSystem.cultivateAcupoints();
             }
         }
@@ -275,6 +281,22 @@ export class CultivationSystem {
         gameState.daoRunes[Utility.rollOneDice(9, 0)] = 1;
         gameState.daoRuneMultiplier = Math.pow(2.5, Utility.sum(gameState.daoRunes));
         gameState.seenDaoRune = true;
+    }
+    static condenseDaoTreasure() {
+        const treasureCost = 1400 * Math.pow(1.5, gameState.treasureCondenseAttempts);
+        if (gameState.qi / 4 > treasureCost) {
+            gameState.qi -= treasureCost;
+            const quality = Utility.rollOneDice(gameState.comprehension + gameState.treasureCondenseAttempts * 2, 0);
+            if (gameState.wisdom / (11) > Math.pow(gameState.daoTreasureQuality.length, 1.2)) {
+                gameState.daoTreasureQuality.push(quality);
+            }
+            else {
+                const minTreasure = Utility.findMinIndex(gameState.daoTreasureQuality);
+                if (gameState.daoTreasureQuality[minTreasure] < quality) {
+                    gameState.daoTreasureQuality[minTreasure] = quality;
+                }
+            }
+        }
     }
 }
 //# sourceMappingURL=cultivationSystem.js.map

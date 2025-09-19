@@ -4,6 +4,10 @@
  */
 export declare class GameLogic {
     /**
+     * Configuration for all tribulation events
+     */
+    private static readonly TRIBULATION_CONFIGS;
+    /**
      * Process one year of game time
      * @param cultivates - Whether the character cultivates this year
      */
@@ -16,6 +20,14 @@ export declare class GameLogic {
      * Handle random lucky encounters based on luck stat
      */
     static LuckyEncounter(): void;
+    /**
+     * Process a single tribulation event
+     * @param config The tribulation configuration
+     */
+    private static processTribulation;
+    /**
+     * Handle tribulation events at specific ages
+     */
     static tribulation(): void;
 }
 //# sourceMappingURL=gameLogic.d.ts.map

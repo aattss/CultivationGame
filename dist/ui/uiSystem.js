@@ -156,6 +156,7 @@ export class UISystem {
             "circulation grade": "circulation-skill-container", // Same container as circulation skill
             acupoints: "acupoints-container",
             "chakras opened": "chakras-container",
+            "treasure quality": "chakras-container",
             "toggle extra meridians": "toggle-extra-meridians-container",
         };
     }
@@ -265,6 +266,7 @@ export class UISystem {
             "circulation grade": gameState.circulationGrade,
             acupoints: gameState.acupoints,
             "chakras opened": gameState.openedChakras,
+            "treasure quality": gameState.daoTreasureQuality.join(", "),
             "toggle extra meridians": gameState.extraMeridiansEnabled
                 ? "Disable extra meridians"
                 : "Enable extra meridians",

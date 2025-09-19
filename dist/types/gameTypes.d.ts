@@ -17,6 +17,7 @@ export interface ShopUpgrades {
     chakraTalentReroll: number;
     extraMeridians: number;
     longevityUnlocked: number;
+    extraPillars: number;
 }
 export interface LifeStats {
     meridiansOpenedAtDeath: number;
@@ -61,8 +62,11 @@ export interface GameState {
     pillarQuality: number;
     dantianGrade: number;
     dantianRerolls: number;
+    pillarEx: number;
     openedChakras: number;
     chakraTalent: number[];
+    daoTreasureQuality: number[];
+    treasureCondenseAttempts: number;
     restartOnDeath: boolean;
     pauseState: boolean;
     totalYears: number;
@@ -127,4 +131,18 @@ export type MeridianIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 export type OrganIndex = 0 | 1 | 2 | 3 | 4;
 export type ChakraIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type DaoRuneIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+/**
+ * Configuration for a tribulation event
+ */
+export interface TribulationConfig {
+    age: number;
+    baseDifficulty: number;
+    difficultyRange: number;
+    failureDamage: number;
+    samsaraReward: number;
+    longevityBonus?: number;
+    bonusLuckyEncounters?: number;
+    deathMessage: string;
+    tribulationIndex: number;
+}
 //# sourceMappingURL=gameTypes.d.ts.map

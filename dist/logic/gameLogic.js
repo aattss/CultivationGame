@@ -30,8 +30,7 @@ export class GameLogic {
         }
         // Aging effects
         gameState.vitality += gameState.cyclesCleansed;
-        if (gameState.age - gameState.shopUpgrades.youthfullness >
-            gameState.qiPurity + gameState.longevity) {
+        if (gameState.age - gameState.shopUpgrades.youthfullness > gameState.qiPurity + gameState.longevity) {
             const loss = gameState.age / Math.max(1, gameState.qiPurity + gameState.longevity);
             gameState.vitality -= Math.max(Math.ceil(Math.random() * loss - 0.5), 0);
         }
@@ -44,8 +43,7 @@ export class GameLogic {
             gameState.highestChakra = Math.max(gameState.highestChakra, gameState.openedChakras);
             gameState.highestCycle = Math.max(gameState.highestCycle, gameState.cyclesCleansed);
             // Record current life statistics
-            gameState.currentLifeStats.meridiansOpenedAtDeath =
-                gameState.meridiansOpened;
+            gameState.currentLifeStats.meridiansOpenedAtDeath = gameState.meridiansOpened;
             gameState.currentLifeStats.ageAtDeath = gameState.age;
             gameState.currentLifeStats.qiFoldsAtDeath = gameState.qiFolds;
             // Add to life statistics history (keep only last 10)
@@ -85,18 +83,13 @@ export class GameLogic {
             });
             return acc;
         }, {});
-        gameState.averageLifeStats = Object.fromEntries(Object.entries(totals).map(([key, total]) => [
-            key,
-            Math.round((10 * total) / stats.length) / 10,
-        ]));
+        gameState.averageLifeStats = Object.fromEntries(Object.entries(totals).map(([key, total]) => [key, Math.round((10 * total) / stats.length) / 10]));
     }
     /**
      * Handle random lucky encounters based on luck stat
      */
     static LuckyEncounter() {
-        if (Math.random() <
-            CONSTANTS.LUCKY_ENCOUNTER_BASE_CHANCE *
-                (Math.log(gameState.luck / 5) / Math.log(2))) {
+        if (Math.random() < CONSTANTS.LUCKY_ENCOUNTER_BASE_CHANCE * (Math.log(gameState.luck / 5) / Math.log(2))) {
             let event = Utility.rollOneDice(5, 1);
             let magnitude = Utility.rollOneDice(Math.sqrt(gameState.luck), 1);
             switch (event) {
@@ -108,9 +101,7 @@ export class GameLogic {
                     break;
                 case 2:
                     magnitude = Math.ceil(magnitude / 2);
-                    gameState.log.push("You came across a marrow cleansing pill and gained " +
-                        magnitude +
-                        " purity.");
+                    gameState.log.push("You came across a marrow cleansing pill and gained " + magnitude + " purity.");
                     gameState.qiPurity += magnitude;
                     break;
                 case 3:
@@ -127,9 +118,7 @@ export class GameLogic {
                     if (gameState.qi < CultivationSystem.getQiCapacity()) {
                         gameState.log.push("You harvested a qi-rich herb.");
                         gameState.qi = Math.min(CultivationSystem.getQiCapacity(), gameState.qi +
-                            Math.ceil(magnitude *
-                                CultivationSystem.getCombatPower() *
-                                Utility.rollOneDice(10)));
+                            Math.ceil(magnitude * CultivationSystem.getCombatPower() * Utility.rollOneDice(gameState.luck, 1)));
                     }
                     break;
                 case 5:
@@ -140,80 +129,118 @@ export class GameLogic {
             }
         }
     }
-    static tribulation() {
+    /**
+     * Process a single tribulation event
+     * @param config The tribulation configuration
+     */
+    static processTribulation(config) {
         const curPower = CultivationSystem.getCombatPower();
-        switch (gameState.age) {
-            case 60:
-                if (curPower <
-                    Math.random() * 5 - Math.log10(gameState.tribulationFailed[0])) {
-                    gameState.vitality -= 12;
-                    gameState.tribulationFailed[0] += 1;
-                }
-                else if (
-                // eslint-disable-next-line no-dupe-else-if
-                curPower <
-                    Math.random() * 5 - Math.log10(gameState.tribulationFailed[0])) {
-                    gameState.vitality -= 7;
-                    gameState.tribulationFailed[0] += 1;
-                }
-                else if (curPower > Math.random() * 6) {
-                    gameState.samsaraPoints += 2;
+        const failurePenalty = Math.log10(gameState.tribulationFailed[config.tribulationIndex] + 1);
+        // First failure check (major failure - double damage)
+        const firstThreshold = config.baseDifficulty + Math.random() * config.difficultyRange - failurePenalty;
+        if (curPower < firstThreshold) {
+            gameState.vitality -= Math.ceil(config.failureDamage * 2 * (0.5 + Math.random() * 1));
+            gameState.tribulationFailed[config.tribulationIndex] += 1;
+        }
+        else {
+            // Second failure check (minor failure - normal damage)
+            const secondThreshold = config.baseDifficulty + Math.random() * config.difficultyRange - failurePenalty;
+            if (curPower < secondThreshold) {
+                gameState.vitality -= Math.ceil(config.failureDamage * (0.5 + Math.random() * 1));
+                gameState.tribulationFailed[config.tribulationIndex] += 1;
+            }
+            else {
+                // Success check - reroll the threshold again
+                const successThreshold = config.baseDifficulty + Math.random() * config.difficultyRange - failurePenalty;
+                if (curPower >= successThreshold) {
+                    gameState.samsaraPoints += config.samsaraReward;
                     if (gameState.shopUpgrades.longevityUnlocked) {
-                        gameState.longevity += 3;
+                        if (config.longevityBonus) {
+                            gameState.longevity += config.longevityBonus;
+                        }
+                        // Trigger bonus lucky encounters
+                        const encounterCount = config.bonusLuckyEncounters || 1;
+                        for (let i = 0; i < encounterCount; i++) {
+                            GameLogic.LuckyEncounter();
+                        }
                     }
                 }
-                if (gameState.vitality <= 0) {
-                    gameState.log.push("At age 60, your village was robbed by bandits and you died.");
-                }
-                break;
-            case 120:
-                if (curPower <
-                    3 + Math.random() * 7 - Math.log10(gameState.tribulationFailed[1])) {
-                    gameState.vitality -= 41;
-                    gameState.tribulationFailed[1] += 1;
-                }
-                else if (
-                // eslint-disable-next-line no-dupe-else-if
-                curPower <
-                    3 + Math.random() * 7 - Math.log10(gameState.tribulationFailed[1])) {
-                    gameState.vitality -= 23;
-                    gameState.tribulationFailed[1] += 1;
-                }
-                else if (curPower > Math.random() * 12) {
-                    gameState.samsaraPoints += 6;
-                    if (gameState.shopUpgrades.longevityUnlocked) {
-                        gameState.longevity += 3;
-                    }
-                }
-                if (gameState.vitality <= 0) {
-                    gameState.log.push("At age 120, a demonic beast slew you.");
-                }
-                break;
-            case 180:
-                if (curPower <
-                    5 + Math.random() * 11 - Math.log10(gameState.tribulationFailed[2])) {
-                    gameState.vitality -= 223;
-                    gameState.tribulationFailed[2] += 1;
-                }
-                else if (
-                // eslint-disable-next-line no-dupe-else-if
-                curPower <
-                    5 + Math.random() * 11 - Math.log10(gameState.tribulationFailed[2])) {
-                    gameState.vitality -= 111;
-                    gameState.tribulationFailed[2] += 1;
-                }
-                else if (curPower > 5 + Math.random() * 15) {
-                    gameState.samsaraPoints += 24;
-                    if (gameState.shopUpgrades.longevityUnlocked) {
-                        gameState.longevity += 3;
-                    }
-                }
-                if (gameState.vitality <= 0) {
-                    gameState.log.push("At age 180, you were slain by a demonic cultivator.");
-                }
-                break;
-            default:
+            }
+        }
+        // Log death message if player died
+        if (gameState.vitality <= 0) {
+            gameState.log.push(config.deathMessage);
+        }
+    }
+    /**
+     * Handle tribulation events at specific ages
+     */
+    static tribulation() {
+        // Find tribulation config for current age
+        const tribulationConfig = this.TRIBULATION_CONFIGS.find((config) => config.age === gameState.age);
+        if (tribulationConfig) {
+            this.processTribulation(tribulationConfig);
         }
     }
 }
+/**
+ * Configuration for all tribulation events
+ */
+GameLogic.TRIBULATION_CONFIGS = [
+    {
+        age: 60,
+        baseDifficulty: 0,
+        difficultyRange: 5,
+        failureDamage: 7,
+        samsaraReward: 2,
+        longevityBonus: 2,
+        bonusLuckyEncounters: 1,
+        deathMessage: "At age 60, your village was robbed by bandits and you died.",
+        tribulationIndex: 0,
+    },
+    {
+        age: 120,
+        baseDifficulty: 3,
+        difficultyRange: 7,
+        failureDamage: 23,
+        samsaraReward: 6,
+        longevityBonus: 2,
+        bonusLuckyEncounters: 1,
+        deathMessage: "At age 120, a demonic beast slew you.",
+        tribulationIndex: 1,
+    },
+    {
+        age: 180,
+        baseDifficulty: 5,
+        difficultyRange: 11,
+        failureDamage: 111,
+        samsaraReward: 24,
+        longevityBonus: 2,
+        bonusLuckyEncounters: 1,
+        deathMessage: "At age 180, you were slain by a demonic cultivator.",
+        tribulationIndex: 2,
+    },
+    {
+        age: 360,
+        baseDifficulty: 11,
+        difficultyRange: 15,
+        failureDamage: 2268,
+        samsaraReward: 96,
+        longevityBonus: 2,
+        bonusLuckyEncounters: 2,
+        deathMessage: "At age 360, you were imprisoned and slain by a wicked tyrant.",
+        tribulationIndex: 3,
+    },
+    {
+        age: 540,
+        baseDifficulty: 18,
+        difficultyRange: 22,
+        failureDamage: 5777,
+        samsaraReward: 244,
+        longevityBonus: 1,
+        bonusLuckyEncounters: 2,
+        deathMessage: "At age 540, you were devoured by a demon lord.",
+        tribulationIndex: 4,
+    },
+];
 //# sourceMappingURL=gameLogic.js.map
