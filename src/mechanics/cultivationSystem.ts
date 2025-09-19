@@ -28,7 +28,7 @@ export class CultivationSystem {
       Math.max(0, Math.log(gameState.vitality) / Math.log(7)) +
       Math.max(0, Math.log10(gameState.qi)) +
       gameState.qiFolds / 1.5 +
-      gameState.dantianGrade / 4 + Utility.sum(gameState.daoTreasureQuality)/50;
+      gameState.dantianGrade / 4 + Utility.sum(gameState.daoTreasureQuality)/30;
     return Math.round(combatPower * 10) / 10;
   }
 
@@ -138,6 +138,8 @@ export class CultivationSystem {
         gameState.circulationInsights += 1;
         if (
           gameState.circulationInsights * Math.random() >
+          gameState.circulationGrade
+          && gameState.circulationInsights * Math.random() >
           gameState.circulationGrade
         ) {
           gameState.log.push(
@@ -358,7 +360,9 @@ export class CultivationSystem {
         gameState.daoTreasureQuality.push(quality);
       } else {
         const minTreasure = Utility.findMinIndex(gameState.daoTreasureQuality);
-        gameState.daoTreasureQuality[minTreasure] = quality;
+        if (gameState.daoTreasureQuality[minTreasure] < quality) {
+          gameState.daoTreasureQuality[minTreasure] = quality;
+        }
       }
     }
   }

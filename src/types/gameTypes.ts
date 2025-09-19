@@ -150,12 +150,7 @@ export type ContainerStateCache = Map<string, boolean>;
 
 // Function types for common patterns
 export type DiceRollFunction = (faces: number, min?: number) => number;
-export type MultiDiceRollFunction = (
-  faces: number,
-  min?: number,
-  numRolls?: number,
-  rerolls?: number
-) => number;
+export type MultiDiceRollFunction = (faces: number, min?: number, numRolls?: number, rerolls?: number) => number;
 
 // UI-specific types
 export interface ContainerConfig {
@@ -182,3 +177,18 @@ export type MeridianIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 export type OrganIndex = 0 | 1 | 2 | 3 | 4;
 export type ChakraIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type DaoRuneIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+/**
+ * Configuration for a tribulation event
+ */
+export interface TribulationConfig {
+  age: number;
+  baseDifficulty: number;
+  difficultyRange: number;
+  failureDamage: number;
+  samsaraReward: number;
+  longevityBonus?: number;
+  bonusLuckyEncounters?: number;
+  deathMessage: string;
+  tribulationIndex: number;
+}
