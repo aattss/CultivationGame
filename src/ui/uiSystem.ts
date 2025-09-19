@@ -3,12 +3,7 @@ import { gameState } from "../data/gameState.js";
 import { shopItems } from "../data/shopItems.js";
 import { CultivationSystem } from "../mechanics/cultivationSystem.js";
 import { gameSave } from "../core/persistence.js";
-import type {
-  ElementCache,
-  ValueCache,
-  ContainerStateCache,
-  ShopItem,
-} from "../types/gameTypes.js";
+import type { ElementCache, ValueCache, ContainerStateCache, ShopItem } from "../types/gameTypes.js";
 import { Utility } from "../utils/utility.js";
 
 /**
@@ -88,10 +83,7 @@ export class UISystem {
     }> = [];
     Object.entries(elements).forEach(([id, value]) => {
       // Skip updates for elements in hidden containers if filtering is enabled
-      if (
-        visibleContainers &&
-        !this.isElementInVisibleContainer(id, visibleContainers)
-      ) {
+      if (visibleContainers && !this.isElementInVisibleContainer(id, visibleContainers)) {
         return;
       }
 
@@ -117,9 +109,7 @@ export class UISystem {
    * Toggle visibility of multiple containers in a single batch operation
    * @param containerConfigs - Array of container configurations
    */
-  static toggleMultipleContainers(
-    containerConfigs: Array<string | { id: string; show: boolean }>
-  ): void {
+  static toggleMultipleContainers(containerConfigs: Array<string | { id: string; show: boolean }>): void {
     // Batch container visibility changes
     const changes: Array<{
       container: HTMLElement;
@@ -152,10 +142,7 @@ export class UISystem {
    * @param visibleContainers - Set of visible container IDs
    * @returns True if element is in a visible container or no container mapping exists
    */
-  static isElementInVisibleContainer(
-    elementId: string,
-    visibleContainers: Set<string>
-  ): boolean {
+  static isElementInVisibleContainer(elementId: string, visibleContainers: Set<string>): boolean {
     const containerMapping = this.getElementContainerMapping();
     const containerId = containerMapping[elementId];
     return !containerId || visibleContainers.has(containerId);
@@ -198,7 +185,7 @@ export class UISystem {
       acupoints: "acupoints-container",
       "chakras opened": "chakras-container",
       "treasure quality": "chakras-container",
-      "toggle extra meridians": "toggle-extra-meridians-container",
+      "toggle-extra-meridians": "toggle-extra-meridians-container",
     };
   }
 
@@ -221,9 +208,7 @@ export class UISystem {
     });
 
     // Update containers first
-    const containerConfigs = Object.entries(containerStates).map(
-      ([id, show]) => ({ id, show })
-    );
+    const containerConfigs = Object.entries(containerStates).map(([id, show]) => ({ id, show }));
     this.toggleMultipleContainers(containerConfigs);
 
     // Update elements, filtering by visible containers
@@ -240,8 +225,7 @@ export class UISystem {
     // Consolidated logic: determine visibility states and element values together
     const hasOpenedMeridians = gameState.highestMeridian >= 12;
     const hasChakras = gameState.highestChakra > 0;
-    const hasAgeAt12thMeridian =
-      gameState.averageLifeStats.ageAt12thMeridian != null;
+    const hasAgeAt12thMeridian = gameState.averageLifeStats.ageAt12thMeridian != null;
     const showMeridianTalent = gameState.totalLives > 8;
 
     // Prepare ALL element updates - no conditional logic here
@@ -252,8 +236,7 @@ export class UISystem {
       "highest dantian grade": gameState.highestDantian,
       "average qi folds": gameState.averageLifeStats.qiFoldsAtDeath,
       "highest chakras": gameState.highestChakra,
-      "average primary meridians":
-        gameState.averageLifeStats.ageAt12thMeridian || 0,
+      "average primary meridians": gameState.averageLifeStats.ageAt12thMeridian || 0,
       "average meridians": gameState.averageLifeStats.meridiansOpenedAtDeath,
       "highest meridian": gameState.highestMeridian,
     };
@@ -265,13 +248,11 @@ export class UISystem {
       "highest-chakras-container": hasOpenedMeridians && hasChakras,
       "comprehension-container": hasOpenedMeridians,
       "average-qi-folds-container": hasOpenedMeridians,
-      "average-primary-meridians-container":
-        hasOpenedMeridians && hasAgeAt12thMeridian,
+      "average-primary-meridians-container": hasOpenedMeridians && hasAgeAt12thMeridian,
       "highest-meridian-container": !hasOpenedMeridians,
       "highest-dantian-container": gameState.highestDantian > 0,
       "average-meridians-container":
-        (!hasOpenedMeridians && !hasAgeAt12thMeridian) ||
-        (hasOpenedMeridians && !hasAgeAt12thMeridian),
+        (!hasOpenedMeridians && !hasAgeAt12thMeridian) || (hasOpenedMeridians && !hasAgeAt12thMeridian),
     };
 
     // Use consolidated update method
@@ -329,9 +310,7 @@ export class UISystem {
       acupoints: gameState.acupoints,
       "chakras opened": gameState.openedChakras,
       "treasure quality": gameState.daoTreasureQuality.join(", "),
-      "toggle extra meridians": gameState.extraMeridiansEnabled
-        ? "Disable extra meridians"
-        : "Enable extra meridians",
+      "toggle-extra-meridians": gameState.extraMeridiansEnabled ? "Disable extra meridians" : "Enable extra meridians",
     };
 
     // Only update log if it actually changed
@@ -352,8 +331,7 @@ export class UISystem {
       "acupoints-container": hasAdvancedMeridians,
       "chakras-container": hasAdvancedMeridians && hasAdvancedDantian,
       "circulation-skill-container": hasAdvancedMeridians,
-      "toggle-extra-meridians-container":
-        gameState.shopUpgrades.extraMeridians >= 1,
+      "toggle-extra-meridians-container": gameState.shopUpgrades.extraMeridians >= 1,
     };
 
     // Use consolidated update method
@@ -391,9 +369,7 @@ export class UISystem {
     if (!upgradeList) return;
 
     // Get all upgrades and sort by price
-    const upgrades = Object.entries(shopItems).sort(
-      (a, b) => a[1].price - b[1].price
-    );
+    const upgrades = Object.entries(shopItems).sort((a, b) => a[1].price - b[1].price);
 
     upgradeList.innerHTML = "";
 
@@ -462,6 +438,6 @@ export class UISystem {
     gameSave();
 
     // Log the purchase - this will trigger a refresh on next tick
-    gameState.log.push(`Purchased upgrade: ${upgrade.name}`);
+    Utility.addLogMessage(`Purchased upgrade: ${upgrade.name}`);
   }
 }

@@ -1,7 +1,5 @@
-import type {
-  DiceRollFunction,
-  MultiDiceRollFunction,
-} from "../types/gameTypes.js";
+import type { DiceRollFunction, MultiDiceRollFunction } from "../types/gameTypes.js";
+import { gameState } from "../data/gameState.js";
 
 /**
  * Utility functions for common operations
@@ -23,10 +21,7 @@ export class Utility {
    * @param min - Minimum value (default: 0)
    * @returns Random number between min and min+faces-1
    */
-  static rollOneDice: DiceRollFunction = (
-    faces: number,
-    min: number = 0
-  ): number => {
+  static rollOneDice: DiceRollFunction = (faces: number, min: number = 0): number => {
     return Math.floor(Math.random() * faces) + min;
   };
 
@@ -64,11 +59,7 @@ export class Utility {
    * @returns Index of the minimum value
    */
   static findMinIndex(array: number[]): number {
-    return array.reduce(
-      (minIndex, current, index, arr) =>
-        current < arr[minIndex] ? index : minIndex,
-      0
-    );
+    return array.reduce((minIndex, current, index, arr) => (current < arr[minIndex] ? index : minIndex), 0);
   }
 
   static getPotentialEstimate(array: number[]): number {
@@ -78,5 +69,13 @@ export class Utility {
     var min = Math.min.apply(null, array);
     var average = Utility.sum(array) / array.length;
     return Math.floor((min + average) / 2);
+  }
+
+  /**
+   * Add a message to the game log
+   * @param message - The message to add to the log
+   */
+  static addLogMessage(message: string): void {
+    gameState.log.push(message);
   }
 }

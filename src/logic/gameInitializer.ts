@@ -15,15 +15,11 @@ export class GameInitializer {
    * Initialize a completely new game
    */
   static startGame(): void {
-    gameState.meridianEx = Array(
-      CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS
-    ).fill(0);
-    gameState.meridianFortune = Array(
-      CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS
-    ).fill(false);
+    gameState.meridianEx = Array(CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS).fill(0);
+    gameState.meridianFortune = Array(CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS).fill(false);
     gameState.extraMeridiansEnabled = false;
     gameState.organEx = Array(gameState.organEx.length).fill(0);
-    gameState.log.push("You began your journey");
+    Utility.addLogMessage("You began your journey");
   }
 
   /**
@@ -31,8 +27,7 @@ export class GameInitializer {
    */
   static startLife(): void {
     if (gameState.extraMeridiansEnabled) {
-      gameState.meridianMax =
-        CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS;
+      gameState.meridianMax = CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS;
     } else {
       gameState.meridianMax = CONSTANTS.MERIDIAN_COUNT;
     }
@@ -40,8 +35,7 @@ export class GameInitializer {
     gameState.meridianCapacity = 0;
     gameState.meridiansOpened = 0;
     gameState.qi = 0;
-    gameState.qiPurity =
-      CONSTANTS.BASE_QI_PURITY + Utility.rollOneDice(gameState.highestQiFold);
+    gameState.qiPurity = CONSTANTS.BASE_QI_PURITY + Utility.rollOneDice(gameState.highestQiFold);
     gameState.circulationSkill = 0;
     gameState.circulationProficiency = 0;
     gameState.qiFolds = 0;
@@ -49,13 +43,8 @@ export class GameInitializer {
     gameState.pillarQuality = 0;
     gameState.dantianGrade = 0;
     gameState.longevity = 0;
-    gameState.daoRunes = gameState.daoRunes.map((value) =>
-      Math.random() < 0.5 ? 0 : value
-    );
-    gameState.daoRuneMultiplier = Math.pow(
-      2.5,
-      Utility.sum(gameState.daoRunes)
-    );
+    gameState.daoRunes = gameState.daoRunes.map((value) => (Math.random() < 0.5 ? 0 : value));
+    gameState.daoRuneMultiplier = Math.pow(2.5, Utility.sum(gameState.daoRunes));
     gameState.dead = false;
     gameState.dantianRerolls = gameState.shopUpgrades.dantianReroll;
     gameState.organsPurified = 0;
@@ -94,19 +83,12 @@ export class GameInitializer {
    */
   static _generateRandomStats(): void {
     // Vitality with bonus from previous achievements
-    gameState.vitality = Utility.rollDice(
-      10,
-      1,
-      2,
-      gameState.shopUpgrades.rerollVitality
-    );
+    gameState.vitality = Utility.rollDice(10, 1, 2, gameState.shopUpgrades.rerollVitality);
     gameState.vitality += Utility.rollOneDice(gameState.highestMeridian / 6);
     gameState.vitality += Utility.rollOneDice(gameState.highestCycle);
 
-    if (
-      Utility.rollDice(100, 1, 1, gameState.shopUpgrades.bloodlineReroll) == 100
-    ) {
-      gameState.log.push("You awakened a special bloodline.");
+    if (Utility.rollDice(100, 1, 1, gameState.shopUpgrades.bloodlineReroll) == 100) {
+      Utility.addLogMessage("You awakened a special bloodline.");
       gameState.vitality += Utility.rollDice(10, 1, 2, 1);
       const organEnhanced = Utility.rollOneDice(5, 0);
       gameState.organTalent[organEnhanced] += Utility.rollOneDice(100, 1);
@@ -115,38 +97,21 @@ export class GameInitializer {
         gameState.organEx[organEnhanced] += 1;
       }
     }
-    if (
-      Utility.rollDice(100, 1, 1, gameState.shopUpgrades.daoRuneReroll) == 100
-    ) {
+    if (Utility.rollDice(100, 1, 1, gameState.shopUpgrades.daoRuneReroll) == 100) {
       CultivationSystem.gainRandomDaoRune();
     }
 
     // Comprehension with memory bonus
-    gameState.comprehension = Utility.rollDice(
-      10,
-      1,
-      2,
-      gameState.shopUpgrades.rerollComprehension
-    );
+    gameState.comprehension = Utility.rollDice(10, 1, 2, gameState.shopUpgrades.rerollComprehension);
     for (let i = 0; i < gameState.circulationMemory.length; i++) {
       if (gameState.circulationMemory[i] > 10) {
-        gameState.comprehension += Utility.rollOneDice(
-          Math.log10(gameState.circulationMemory[i] / 10)
-        );
+        gameState.comprehension += Utility.rollOneDice(Math.log10(gameState.circulationMemory[i] / 10));
       }
     }
-    gameState.comprehension += Utility.rollOneDice(
-      gameState.highestMeridian,
-      0
-    );
+    gameState.comprehension += Utility.rollOneDice(gameState.highestMeridian, 0);
 
     // Wisdom with experience bonus
-    gameState.wisdom = Utility.rollDice(
-      10,
-      1,
-      2,
-      gameState.shopUpgrades.rerollWisdom
-    );
+    gameState.wisdom = Utility.rollDice(10, 1, 2, gameState.shopUpgrades.rerollWisdom);
     gameState.wisdom += Math.floor(Math.sqrt(gameState.totalYears / 100));
     gameState.wisdom += gameState.enlightenment;
 
@@ -166,10 +131,7 @@ export class GameInitializer {
    * @private
    */
   static _generateMeridianTalents(): void {
-    gameState.meridianTalent = Array.from(
-      { length: gameState.meridianMax },
-      () => Utility.rollOneDice(100, 1)
-    );
+    gameState.meridianTalent = Array.from({ length: gameState.meridianMax }, () => Utility.rollOneDice(100, 1));
 
     // Apply fortune rerolls
     gameState.meridianTalent.forEach((talent, index) => {
@@ -204,9 +166,7 @@ export class GameInitializer {
    * @private
    */
   static _generateOrganTalents(): void {
-    gameState.organTalent = Array.from({ length: 5 }, () =>
-      Utility.rollOneDice(100, 1)
-    );
+    gameState.organTalent = Array.from({ length: 5 }, () => Utility.rollOneDice(100, 1));
     for (let i = 0; i < gameState.shopUpgrades.organTalentReroll; i++) {
       const minOrgan = Utility.findMinIndex(gameState.organTalent);
       const reroll = Utility.rollOneDice(100, 1);
@@ -224,9 +184,7 @@ export class GameInitializer {
    * @private
    */
   static _generateChakraTalents(): void {
-    gameState.chakraTalent = Array.from({ length: 7 }, () =>
-      Utility.rollOneDice(100, 1)
-    );
+    gameState.chakraTalent = Array.from({ length: 7 }, () => Utility.rollOneDice(100, 1));
     for (let i = 0; i < gameState.shopUpgrades.chakraTalentReroll; i++) {
       const minChakra = Utility.findMinIndex(gameState.chakraTalent);
       const reroll = Utility.rollOneDice(100, 1);
@@ -241,9 +199,7 @@ export class GameInitializer {
    * @private
    */
   static _calculateStartAge(): void {
-    gameState.startAge =
-      CONSTANTS.BASE_AGE -
-      Math.max(Math.ceil(Math.log(gameState.wisdom / 15) / Math.log(1.5)), 0);
+    gameState.startAge = CONSTANTS.BASE_AGE - Math.max(Math.ceil(Math.log(gameState.wisdom / 15) / Math.log(1.5)), 0);
     gameState.startAge -= gameState.shopUpgrades.earlyStart;
     gameState.startAge = Math.max(gameState.startAge, 0);
   }
@@ -253,11 +209,7 @@ export class GameInitializer {
    * @private
    */
   static _simulateEarlyYears(): void {
-    for (
-      gameState.age = 0;
-      gameState.age < gameState.startAge;
-      gameState.age++
-    ) {
+    for (gameState.age = 0; gameState.age < gameState.startAge; gameState.age++) {
       GameLogic.oneYearPass(false);
     }
   }
