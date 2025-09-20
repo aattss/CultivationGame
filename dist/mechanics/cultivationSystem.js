@@ -11,9 +11,7 @@ export class CultivationSystem {
      * @returns Total qi capacity
      */
     static getQiCapacity() {
-        return (gameState.meridianCapacity +
-            gameState.dantianGrade * 600 +
-            gameState.acupoints * 5);
+        return gameState.meridianCapacity + gameState.dantianGrade * 600 + gameState.acupoints * 5;
     }
     /**
      * Calculate combat power based on various cultivation factors
@@ -23,7 +21,8 @@ export class CultivationSystem {
         const combatPower = Math.max(0, Math.log(gameState.vitality) / Math.log(7)) +
             Math.max(0, Math.log10(gameState.qi)) +
             gameState.qiFolds / 1.5 +
-            gameState.dantianGrade / 4 + Utility.sum(gameState.daoTreasureQuality) / 30;
+            gameState.dantianGrade / 4 +
+            Math.sqrt(Utility.sum(gameState.daoTreasureQuality)) / 5;
         return Math.round(combatPower * 10) / 10;
     }
     /**
@@ -31,10 +30,8 @@ export class CultivationSystem {
      * @returns Qi gained per cycle
      */
     static getQiRate() {
-        return (Math.ceil(Math.pow(gameState.circulationSkill + 1, 2) *
-            Math.pow(1.7, gameState.circulationGrade) +
-            gameState.vitality / 4) *
-            (1 + gameState.dantianGrade));
+        return (Math.ceil(Math.pow(gameState.circulationSkill + 1, 2) * Math.pow(1.7, gameState.circulationGrade) + gameState.vitality / 4) *
+            (1 + gameState.dantianGrade / 2));
     }
     /**
      * Attempt to open meridians based on current stats
@@ -55,12 +52,10 @@ export class CultivationSystem {
                 failed = true;
                 break;
             }
-            if (Math.random() * difficulty < effective_vitality - 8 &&
-                Math.random() * difficulty < effective_vitality - 16) {
+            if (Math.random() * difficulty < effective_vitality - 8 && Math.random() * difficulty < effective_vitality - 16) {
                 gameState.meridianFortune[gameState.meridiansOpened] = true;
             }
-            gameState.meridianCapacity +=
-                gameState.meridianTalent[gameState.meridiansOpened];
+            gameState.meridianCapacity += gameState.meridianTalent[gameState.meridiansOpened];
             if (gameState.meridiansOpened > CONSTANTS.MERIDIAN_COUNT) {
                 gameState.vitality += 10;
             }
@@ -69,10 +64,12 @@ export class CultivationSystem {
             if (gameState.meridiansOpened == 12) {
                 // Track age when 12th meridian is opened
                 gameState.currentLifeStats.ageAt12thMeridian = gameState.age;
-                gameState.log.push("Life " +
-                    gameState.totalLives +
-                    ": You opened primary meridians at age " +
-                    gameState.age);
+                Utility.addLogMessage("Life " + gameState.totalLives + ": You opened primary meridians at age " + gameState.age);
+            }
+            if (gameState.meridiansOpened == 20 && gameState.extraMeridiansEnabled) {
+                // Track age when 20th meridian is opened (only when extra meridians are enabled)
+                gameState.currentLifeStats.ageAt20thMeridian = gameState.age;
+                Utility.addLogMessage("Life " + gameState.totalLives + ": You opened all extraordinary meridians at age " + gameState.age);
             }
             combo += 1;
         }
@@ -81,8 +78,7 @@ export class CultivationSystem {
      * Cultivate circulation technique and generate qi
      */
     static cultivateCirculation() {
-        gameState.circulationProficiency +=
-            Math.pow(gameState.comprehension / 10, 2) * gameState.daoRuneMultiplier;
+        gameState.circulationProficiency += Math.pow(gameState.comprehension / 10, 2) * gameState.daoRuneMultiplier;
         const circulationDifficulty = CONSTANTS.CIRCULATION_BASE_DIFFICULTY *
             Math.pow(CONSTANTS.CIRCULATION_DIFFICULTY_MULTIPLIER, gameState.circulationSkill);
         if (gameState.circulationProficiency > circulationDifficulty) {
@@ -92,33 +88,27 @@ export class CultivationSystem {
             gameState.circulationMemory[gameState.circulationSkill] += 1;
             gameState.circulationProficiency -= circulationDifficulty;
             gameState.circulationSkill += 1;
-            if (Math.random() * 500 * (gameState.enlightenment + 1) <
-                ((gameState.circulationGrade - gameState.enlightenment) *
-                    gameState.wisdom) /
-                    10) {
+            if (Math.random() * 1000 * (gameState.enlightenment + 1) <
+                ((gameState.circulationGrade - gameState.enlightenment) * gameState.wisdom) / 10) {
                 gameState.enlightenment += 1;
                 gameState.circulationGrade = 1;
-                gameState.log.push("You had a glimpse of enlightenment and started over with your cultivation technique.");
+                Utility.addLogMessage("You had a glimpse of enlightenment and started over with your cultivation technique.");
             }
-            else if (Math.random() * gameState.circulationGrade * 100 <
-                gameState.wisdom * gameState.circulationSkill) {
+            else if (Math.random() * gameState.circulationGrade * 100 < gameState.wisdom * gameState.circulationSkill) {
                 gameState.circulationInsights += 1;
-                if (gameState.circulationInsights * Math.random() >
-                    gameState.circulationGrade
-                    && gameState.circulationInsights * Math.random() >
-                        gameState.circulationGrade) {
-                    gameState.log.push("You had an epiphany and evolved your circulation technique.");
+                if (gameState.circulationInsights * Math.random() > gameState.circulationGrade &&
+                    gameState.circulationInsights * Math.random() > gameState.circulationGrade) {
+                    Utility.addLogMessage("You had an epiphany and evolved your circulation technique.");
                     gameState.circulationGrade += 1;
-                    gameState.log.push("It is now grade " + gameState.circulationGrade);
+                    Utility.addLogMessage("It is now grade " + gameState.circulationGrade);
                     gameState.circulationInsights = 0;
                 }
                 else {
-                    gameState.log.push("You had an insight with your circulation technique.");
+                    Utility.addLogMessage("You had an insight with your circulation technique.");
                 }
             }
         }
-        gameState.meridianCapacity +=
-            gameState.circulationSkill * 2 + gameState.circulationGrade * 3;
+        gameState.meridianCapacity += gameState.circulationSkill * 2 + gameState.circulationGrade * 3;
         gameState.qi = Math.min(this.getQiCapacity(), gameState.qi + this.getQiRate());
     }
     /**
@@ -132,8 +122,7 @@ export class CultivationSystem {
             (200 +
                 100 * Math.pow(gameState.cyclesCleansed, 2) -
                 gameState.vitality -
-                (gameState.cyclesCleansed + 2) *
-                    gameState.organTalent[gameState.organsPurified]);
+                (gameState.cyclesCleansed + 2) * gameState.organTalent[gameState.organsPurified]);
         if (gameState.organProgress > organDifficulty) {
             gameState.organProgress -= organDifficulty;
             gameState.organsPurified += 1;
@@ -157,7 +146,9 @@ export class CultivationSystem {
             if (gameState.pillarQuality > 8 * (3 + gameState.pillarEx)) {
                 gameState.pillarEx += 1;
             }
-            if (gameState.pillars < 8 + 4 * gameState.shopUpgrades.extraPillars && gameState.qi >= CONSTANTS.PILLAR_QI_COST) {
+            if (gameState.pillars < 8 + 4 * gameState.shopUpgrades.extraPillars &&
+                gameState.qi >= CONSTANTS.PILLAR_QI_COST &&
+                Math.random() < 0.8) {
                 CultivationSystem.formPillar();
             }
         }
@@ -169,43 +160,41 @@ export class CultivationSystem {
      * Form a dantian with accumulated pillars
      */
     static formDantian() {
-        let difficulty = Utility.rollOneDice(3 * gameState.dantianGrade + 16, 1);
+        let difficulty = CultivationSystem.getDantianDifficulty();
         let cost = 100 * gameState.dantianGrade;
         const foundation = gameState.pillarQuality + gameState.qiFolds;
-        while (gameState.dantianRerolls > 0 &&
-            difficulty -
-                Math.max(0, gameState.highestDantian - gameState.dantianGrade) / 10 <
-                foundation) {
+        while (gameState.dantianRerolls > 0 && difficulty < foundation) {
             gameState.dantianRerolls -= 1;
             difficulty = Utility.rollOneDice(3 * gameState.dantianGrade + 16, 1);
         }
-        while (gameState.qi > cost &&
-            difficulty -
-                Math.max(0, gameState.highestDantian - gameState.dantianGrade) / 10 <
-                foundation) {
+        while (gameState.qi > cost && difficulty < foundation) {
             gameState.qi -= cost;
             gameState.dantianGrade += 1;
-            difficulty = Math.random() * (gameState.dantianGrade + 12);
+            difficulty = CultivationSystem.getDantianDifficulty();
             while (gameState.dantianRerolls > 0 && difficulty < foundation) {
                 gameState.dantianRerolls -= 1;
-                difficulty = Utility.rollOneDice(2 * gameState.dantianGrade + 14, 1);
+                difficulty = CultivationSystem.getDantianDifficulty();
             }
             cost = 50 * gameState.dantianGrade;
         }
         if (gameState.dantianGrade == 0) {
-            gameState.log.push("You failed to form a dantian.");
+            Utility.addLogMessage("You failed to form a dantian.");
             gameState.vitality -= Utility.rollOneDice(40, 7);
             gameState.qi -= gameState.qi * Math.random() * 0.8;
         }
         else {
             gameState.qiPurity += gameState.dantianGrade * 3;
-            gameState.log.push("Life " +
+            Utility.addLogMessage("Life " +
                 gameState.totalLives +
                 ": You formed a grade " +
                 gameState.dantianGrade +
                 " dantian at age " +
                 gameState.age);
         }
+    }
+    static getDantianDifficulty() {
+        return (Utility.rollOneDice(2 * gameState.dantianGrade + 14, 1) -
+            Math.max(0, gameState.highestDantian - gameState.dantianGrade) / 5);
     }
     /**
      * Cultivate acupoints to increase qi capacity
@@ -230,16 +219,12 @@ export class CultivationSystem {
             this.cultivateCirculation();
         }
         // Check for qi folding
-        if (gameState.qi >
-            CONSTANTS.QI_FOLD_THRESHOLD *
-                Math.pow(CONSTANTS.QI_FOLD_MULTIPLIER, gameState.qiFolds)) {
+        if (gameState.qi > CONSTANTS.QI_FOLD_THRESHOLD * Math.pow(CONSTANTS.QI_FOLD_MULTIPLIER, gameState.qiFolds)) {
             gameState.qiFolds += 1;
             gameState.qi = Math.ceil(gameState.qi / 2);
-            gameState.qiPurity +=
-                CONSTANTS.QI_PURITY_BONUS + gameState.circulationGrade;
+            gameState.qiPurity += CONSTANTS.QI_PURITY_BONUS + gameState.circulationGrade;
         }
-        if (gameState.qi > CONSTANTS.PILLAR_QI_COST &&
-            gameState.qi >= 0.95 * CultivationSystem.getQiCapacity()) {
+        if (gameState.qi > CONSTANTS.PILLAR_QI_COST && gameState.qi >= 0.95 * CultivationSystem.getQiCapacity()) {
             if (gameState.pillars < 8 + 4 * gameState.shopUpgrades.extraPillars) {
                 if (gameState.cyclesCleansed > 0) {
                     this.formPillar();
@@ -259,25 +244,30 @@ export class CultivationSystem {
         }
     }
     static cultivateChakras() {
-        let chakraCost = 0;
-        if (gameState.openedChakras == 7) {
+        const maxChakras = gameState.shopUpgrades.extraChakras > 0 ? 9 : 7;
+        if (gameState.openedChakras == maxChakras) {
             return;
         }
+        let cumChakraTalents = 0;
         for (var i = 0; i <= gameState.openedChakras; i++) {
-            chakraCost += 50 * (150 - gameState.chakraTalent[i]);
+            cumChakraTalents += gameState.chakraTalent[i];
         }
+        const chakraCost = 50 * (150 * (gameState.openedChakras + 1) - cumChakraTalents);
         if (gameState.qi > chakraCost) {
             gameState.qi -= chakraCost;
-            gameState.openedChakras += 1;
-            gameState.comprehension += 1 + gameState.openedChakras;
             gameState.wisdom += 1;
+            if (Math.random() < Math.pow(gameState.wisdom - gameState.chakraEx[gameState.openedChakras], 2) / 100000) {
+                gameState.chakraEx[gameState.openedChakras] += 1;
+            }
+            gameState.openedChakras += 1;
+            gameState.comprehension += Math.ceil(cumChakraTalents / 50);
         }
     }
     /**
      * Gain a random dao rune for cultivation bonus
      */
     static gainRandomDaoRune() {
-        gameState.log.push("You see a strange symbol in your dreams.");
+        Utility.addLogMessage("You see a strange symbol in your dreams.");
         gameState.daoRunes[Utility.rollOneDice(9, 0)] = 1;
         gameState.daoRuneMultiplier = Math.pow(2.5, Utility.sum(gameState.daoRunes));
         gameState.seenDaoRune = true;
@@ -287,7 +277,8 @@ export class CultivationSystem {
         if (gameState.qi / 4 > treasureCost) {
             gameState.qi -= treasureCost;
             const quality = Utility.rollOneDice(gameState.comprehension + gameState.treasureCondenseAttempts * 2, 0);
-            if (gameState.wisdom / (11) > Math.pow(gameState.daoTreasureQuality.length, 1.2)) {
+            gameState.treasureCondenseAttempts += 1;
+            if (gameState.wisdom / 11 > Math.pow(gameState.daoTreasureQuality.length, 1.2)) {
                 gameState.daoTreasureQuality.push(quality);
             }
             else {

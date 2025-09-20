@@ -12,7 +12,7 @@ import { GameLogic } from "./logic/gameLogic.js";
 import { GameInitializer } from "./logic/gameInitializer.js";
 import { UISystem } from "./ui/uiSystem.js";
 import { GameLoop } from "./core/gameLoop.js";
-import { GamePersistence, gameSave, gameLoad, saveToFile, loadFromFile, } from "./core/persistence.js";
+import { GamePersistence, gameSave, gameLoad, saveToFile, loadFromFile } from "./core/persistence.js";
 /**
  * Initialize and start the game
  */
@@ -71,7 +71,10 @@ window.saveGameToFile = saveGameToFile;
 window.loadGameFromFile = loadGameFromFile;
 window.toggleExtraMeridians = toggleExtraMeridians;
 // Also expose game classes for debugging/console access
-window.gameState = gameState;
+Object.defineProperty(window, "gameState", {
+    get: () => gameState,
+    configurable: true,
+});
 window.GameLogic = GameLogic;
 window.CultivationSystem = CultivationSystem;
 window.UISystem = UISystem;

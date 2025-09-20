@@ -46,6 +46,7 @@ export class GameLogic {
             gameState.currentLifeStats.meridiansOpenedAtDeath = gameState.meridiansOpened;
             gameState.currentLifeStats.ageAtDeath = gameState.age;
             gameState.currentLifeStats.qiFoldsAtDeath = gameState.qiFolds;
+            gameState.currentLifeStats.chakrasAtDeath = gameState.openedChakras;
             // Add to life statistics history (keep only last 10)
             gameState.lifeStats.push({ ...gameState.currentLifeStats });
             if (gameState.lifeStats.length > 10) {
@@ -55,17 +56,21 @@ export class GameLogic {
             if (gameState.averageLifeStats["meridiansOpenedAtDeath"] < 12) {
                 gameState.averageLifeStats["ageAt12thMeridian"] = null;
             }
-            gameState.log.push("Life " + gameState.totalLives + ": You died at age " + gameState.age);
+            if (gameState.extraMeridiansEnabled && gameState.averageLifeStats["meridiansOpenedAtDeath"] < 20) {
+                gameState.averageLifeStats["ageAt20thMeridian"] = null;
+            }
+            Utility.addLogMessage("Life " + gameState.totalLives + ": You died at age " + gameState.age);
             gameState.totalLives += 1;
-            let pointGain = Math.floor(gameState.age / 40) +
+            let pointGain = gameState.age / 30 +
+                Math.max(0, (gameState.age - 180) / 20) +
                 gameState.meridiansOpened * 2 +
                 gameState.qiFolds * 4 +
                 gameState.pillars * 3 +
                 gameState.dantianGrade * 4 +
                 gameState.organsPurified +
                 gameState.cyclesCleansed * 5 +
-                gameState.openedChakras * 8;
-            gameState.samsaraPoints += pointGain;
+                gameState.openedChakras * 10;
+            gameState.samsaraPoints += Math.floor(pointGain);
         }
     }
     /**
@@ -94,19 +99,19 @@ export class GameLogic {
             let magnitude = Utility.rollOneDice(Math.sqrt(gameState.luck), 1);
             switch (event) {
                 case 1:
-                    gameState.log.push("You came across a spiritual fruit and gained " +
+                    Utility.addLogMessage("You came across a spiritual fruit and gained " +
                         Math.ceil(magnitude * Math.sqrt(CultivationSystem.getCombatPower())) +
                         " vitality.");
                     gameState.vitality += Math.ceil(magnitude * Math.sqrt(CultivationSystem.getCombatPower()));
                     break;
                 case 2:
                     magnitude = Math.ceil(magnitude / 2);
-                    gameState.log.push("You came across a marrow cleansing pill and gained " + magnitude + " purity.");
+                    Utility.addLogMessage("You came across a marrow cleansing pill and gained " + magnitude + " purity.");
                     gameState.qiPurity += magnitude;
                     break;
                 case 3:
                     if (gameState.meridiansOpened >= 12) {
-                        gameState.log.push("You had an epiphany with your circulation technique.");
+                        Utility.addLogMessage("You had an epiphany with your circulation technique.");
                         gameState.circulationProficiency +=
                             Math.pow(gameState.comprehension / 10, 2) *
                                 gameState.daoRuneMultiplier *
@@ -116,7 +121,7 @@ export class GameLogic {
                     break;
                 case 4:
                     if (gameState.qi < CultivationSystem.getQiCapacity()) {
-                        gameState.log.push("You harvested a qi-rich herb.");
+                        Utility.addLogMessage("You harvested a qi-rich herb.");
                         gameState.qi = Math.min(CultivationSystem.getQiCapacity(), gameState.qi +
                             Math.ceil(magnitude * CultivationSystem.getCombatPower() * Utility.rollOneDice(gameState.luck, 1)));
                     }
@@ -169,7 +174,7 @@ export class GameLogic {
         }
         // Log death message if player died
         if (gameState.vitality <= 0) {
-            gameState.log.push(config.deathMessage);
+            Utility.addLogMessage(config.deathMessage);
         }
     }
     /**
@@ -222,20 +227,20 @@ GameLogic.TRIBULATION_CONFIGS = [
     },
     {
         age: 360,
-        baseDifficulty: 11,
-        difficultyRange: 15,
-        failureDamage: 2268,
+        baseDifficulty: 9,
+        difficultyRange: 13,
+        failureDamage: 510,
         samsaraReward: 96,
         longevityBonus: 2,
         bonusLuckyEncounters: 2,
-        deathMessage: "At age 360, you were imprisoned and slain by a wicked tyrant.",
+        deathMessage: "At age 360, you were imprisoned and executed by a wicked tyrant.",
         tribulationIndex: 3,
     },
     {
         age: 540,
-        baseDifficulty: 18,
-        difficultyRange: 22,
-        failureDamage: 5777,
+        baseDifficulty: 13,
+        difficultyRange: 15,
+        failureDamage: 2662,
         samsaraReward: 244,
         longevityBonus: 1,
         bonusLuckyEncounters: 2,

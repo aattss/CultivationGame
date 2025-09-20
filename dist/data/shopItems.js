@@ -48,8 +48,7 @@ export const shopItems = {
         name: "Comprehension 2 Dice -> B2o3",
         price: 1000,
         condition: function () {
-            return (gameState.shopUpgrades.rerollComprehension == 0 &&
-                gameState.highestMeridian >= 12);
+            return gameState.shopUpgrades.rerollComprehension == 0 && gameState.highestMeridian >= 12;
         },
         effect: function () {
             gameState.shopUpgrades.rerollComprehension = 1;
@@ -129,7 +128,7 @@ export const shopItems = {
         name: "Additional Bloodline Chance",
         price: 700,
         condition: function () {
-            return (gameState.shopUpgrades.bloodlineReroll == 0 && gameState.seenBloodline);
+            return gameState.shopUpgrades.bloodlineReroll == 0 && gameState.seenBloodline;
         },
         effect: function () {
             gameState.shopUpgrades.bloodlineReroll = 1;
@@ -169,8 +168,7 @@ export const shopItems = {
         name: "Additional Chance In Dantian Formation",
         price: 2200,
         condition: function () {
-            return (gameState.shopUpgrades.dantianReroll == 0 &&
-                gameState.highestDantian > 0);
+            return gameState.shopUpgrades.dantianReroll == 0 && gameState.highestDantian > 0;
         },
         effect: function () {
             gameState.shopUpgrades.dantianReroll = 1;
@@ -200,8 +198,7 @@ export const shopItems = {
         name: "Another Additional Reroll For Organ Talent",
         price: 4600,
         condition: function () {
-            return (gameState.shopUpgrades.organTalentReroll == 1 &&
-                gameState.highestCycle > 1);
+            return gameState.shopUpgrades.organTalentReroll == 1 && gameState.highestCycle > 1;
         },
         effect: function () {
             gameState.shopUpgrades.organTalentReroll = 2;
@@ -211,8 +208,7 @@ export const shopItems = {
         name: "Adds A Reroll For One Chakra Talent",
         price: 7200,
         condition: function () {
-            return (gameState.shopUpgrades.chakraTalentReroll == 0 &&
-                gameState.highestChakra > 0);
+            return gameState.shopUpgrades.chakraTalentReroll == 0 && gameState.highestChakra > 0;
         },
         effect: function () {
             gameState.shopUpgrades.chakraTalentReroll = 1;
@@ -232,8 +228,7 @@ export const shopItems = {
         name: "Unlock The Extraordinary Meridians",
         price: 3000,
         condition: function () {
-            return (gameState.shopUpgrades.extraMeridians == 0 &&
-                gameState.enlightenment >= 2);
+            return gameState.shopUpgrades.extraMeridians == 0 && gameState.enlightenment >= 2;
         },
         effect: function () {
             gameState.shopUpgrades.extraMeridians = 1;
@@ -243,8 +238,7 @@ export const shopItems = {
         name: "Rewrite Life And Death Through Overcoming Tribulation",
         price: 800,
         condition: function () {
-            return (gameState.shopUpgrades.longevityUnlocked == 0 &&
-                gameState.enlightenment >= 1);
+            return gameState.shopUpgrades.longevityUnlocked == 0 && gameState.enlightenment >= 1;
         },
         effect: function () {
             gameState.shopUpgrades.longevityUnlocked = 1;
@@ -254,11 +248,20 @@ export const shopItems = {
         name: "Perfect Your Pillar Foundation With The Zodiac",
         price: 5000,
         condition: function () {
-            return (gameState.shopUpgrades.extraPillars == 0 &&
-                gameState.enlightenment >= 3);
+            return gameState.shopUpgrades.extraPillars == 0 && gameState.enlightenment >= 3;
         },
         effect: function () {
             gameState.shopUpgrades.extraPillars = 1;
+        },
+    },
+    extraChakras: {
+        name: "Conceptualize Additional Chakras To Understand Divine Truths",
+        price: 9000,
+        condition: function () {
+            return gameState.shopUpgrades.extraChakras == 0 && gameState.enlightenment >= 4;
+        },
+        effect: function () {
+            gameState.shopUpgrades.extraChakras = 1;
         },
     },
 };

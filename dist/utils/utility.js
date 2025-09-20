@@ -1,4 +1,5 @@
 var _a;
+import { gameState } from "../data/gameState.js";
 /**
  * Utility functions for common operations
  * Contains helper functions used throughout the game
@@ -18,7 +19,7 @@ export class Utility {
      * @returns Index of the minimum value
      */
     static findMinIndex(array) {
-        return array.reduce((minIndex, current, index, arr) => current < arr[minIndex] ? index : minIndex, 0);
+        return array.reduce((minIndex, current, index, arr) => (current < arr[minIndex] ? index : minIndex), 0);
     }
     static getPotentialEstimate(array) {
         if (!array || array.length === 0) {
@@ -27,6 +28,13 @@ export class Utility {
         var min = Math.min.apply(null, array);
         var average = _a.sum(array) / array.length;
         return Math.floor((min + average) / 2);
+    }
+    /**
+     * Add a message to the game log
+     * @param message - The message to add to the log
+     */
+    static addLogMessage(message) {
+        gameState.log.push(message);
     }
 }
 _a = Utility;

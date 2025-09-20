@@ -18,12 +18,15 @@ export interface ShopUpgrades {
     extraMeridians: number;
     longevityUnlocked: number;
     extraPillars: number;
+    extraChakras: number;
 }
 export interface LifeStats {
     meridiansOpenedAtDeath: number;
     ageAtDeath: number;
     qiFoldsAtDeath: number;
+    chakrasAtDeath: number;
     ageAt12thMeridian: number | null;
+    ageAt20thMeridian: number | null;
 }
 export interface GameState {
     age: number;
@@ -65,6 +68,7 @@ export interface GameState {
     pillarEx: number;
     openedChakras: number;
     chakraTalent: number[];
+    chakraEx: number[];
     daoTreasureQuality: number[];
     treasureCondenseAttempts: number;
     restartOnDeath: boolean;
@@ -127,10 +131,6 @@ export interface UIUpdateConfig {
     containerStates: Record<string, boolean>;
 }
 export type CultivationEvent = "meridian_opened" | "qi_folded" | "pillar_formed" | "dantian_formed" | "death" | "tribulation";
-export type MeridianIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
-export type OrganIndex = 0 | 1 | 2 | 3 | 4;
-export type ChakraIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-export type DaoRuneIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 /**
  * Configuration for a tribulation event
  */

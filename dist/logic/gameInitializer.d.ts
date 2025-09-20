@@ -41,5 +41,10 @@ export declare class GameInitializer {
      * @private
      */
     static _simulateEarlyYears(): void;
+    /**
+     * Generate bloodline with intensity system and organ enhancements
+     * @private
+     */
+    static _generateBloodline(): void;
 }
 //# sourceMappingURL=gameInitializer.d.ts.map

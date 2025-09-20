@@ -33,5 +33,10 @@ export declare class Utility {
      */
     static findMinIndex(array: number[]): number;
     static getPotentialEstimate(array: number[]): number;
+    /**
+     * Add a message to the game log
+     * @param message - The message to add to the log
+     */
+    static addLogMessage(message: string): void;
 }
 //# sourceMappingURL=utility.d.ts.map

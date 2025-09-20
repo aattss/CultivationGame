@@ -65,8 +65,7 @@ export class UISystem {
         const updates = [];
         Object.entries(elements).forEach(([id, value]) => {
             // Skip updates for elements in hidden containers if filtering is enabled
-            if (visibleContainers &&
-                !this.isElementInVisibleContainer(id, visibleContainers)) {
+            if (visibleContainers && !this.isElementInVisibleContainer(id, visibleContainers)) {
                 return;
             }
             const lastValue = this.lastValues.get(id);
@@ -132,7 +131,9 @@ export class UISystem {
             "highest dantian grade": "highest-dantian-container", // Part of advanced stats, controlled by logic
             "average qi folds": "average-qi-folds-container",
             "highest chakras": "highest-chakras-container",
+            "average chakras": "average-chakras-container",
             "average primary meridians": "average-primary-meridians-container",
+            "average extraordinary meridians": "average-extraordinary-meridians-container",
             "average meridians": "average-meridians-container",
             "highest meridian": "highest-meridian-container",
             age: null, // Always visible
@@ -157,7 +158,7 @@ export class UISystem {
             acupoints: "acupoints-container",
             "chakras opened": "chakras-container",
             "treasure quality": "chakras-container",
-            "toggle extra meridians": "toggle-extra-meridians-container",
+            "toggle-extra-meridians": "toggle-extra-meridians-container",
         };
     }
     /**
@@ -189,6 +190,7 @@ export class UISystem {
         const hasOpenedMeridians = gameState.highestMeridian >= 12;
         const hasChakras = gameState.highestChakra > 0;
         const hasAgeAt12thMeridian = gameState.averageLifeStats.ageAt12thMeridian != null;
+        const hasAgeAt20thMeridian = gameState.averageLifeStats.ageAt20thMeridian != null;
         const showMeridianTalent = gameState.totalLives > 8;
         // Prepare ALL element updates - no conditional logic here
         const elementUpdates = {
@@ -198,7 +200,9 @@ export class UISystem {
             "highest dantian grade": gameState.highestDantian,
             "average qi folds": gameState.averageLifeStats.qiFoldsAtDeath,
             "highest chakras": gameState.highestChakra,
+            "average chakras": gameState.averageLifeStats.chakrasAtDeath,
             "average primary meridians": gameState.averageLifeStats.ageAt12thMeridian || 0,
+            "average extraordinary meridians": gameState.averageLifeStats.ageAt20thMeridian || 0,
             "average meridians": gameState.averageLifeStats.meridiansOpenedAtDeath,
             "highest meridian": gameState.highestMeridian,
         };
@@ -207,13 +211,14 @@ export class UISystem {
             "meridian-talent-container": showMeridianTalent,
             "highest-qi-folds-container": hasOpenedMeridians,
             "highest-chakras-container": hasOpenedMeridians && hasChakras,
+            "average-chakras-container": hasOpenedMeridians && hasChakras,
             "comprehension-container": hasOpenedMeridians,
             "average-qi-folds-container": hasOpenedMeridians,
             "average-primary-meridians-container": hasOpenedMeridians && hasAgeAt12thMeridian,
+            "average-extraordinary-meridians-container": gameState.extraMeridiansEnabled && hasAgeAt20thMeridian,
             "highest-meridian-container": !hasOpenedMeridians,
             "highest-dantian-container": gameState.highestDantian > 0,
-            "average-meridians-container": (!hasOpenedMeridians && !hasAgeAt12thMeridian) ||
-                (hasOpenedMeridians && !hasAgeAt12thMeridian),
+            "average-meridians-container": (gameState.shopUpgrades.extraMeridians && !hasAgeAt20thMeridian) || !hasAgeAt12thMeridian,
         };
         // Use consolidated update method
         this.updateUIWithConsolidatedLogic({
@@ -267,9 +272,7 @@ export class UISystem {
             acupoints: gameState.acupoints,
             "chakras opened": gameState.openedChakras,
             "treasure quality": gameState.daoTreasureQuality.join(", "),
-            "toggle extra meridians": gameState.extraMeridiansEnabled
-                ? "Disable extra meridians"
-                : "Enable extra meridians",
+            "toggle-extra-meridians": gameState.extraMeridiansEnabled ? "Disable extra meridians" : "Enable extra meridians",
         };
         // Only update log if it actually changed
         if (logUpdated) {
@@ -378,7 +381,7 @@ export class UISystem {
         // Save game state
         gameSave();
         // Log the purchase - this will trigger a refresh on next tick
-        gameState.log.push(`Purchased upgrade: ${upgrade.name}`);
+        Utility.addLogMessage(`Purchased upgrade: ${upgrade.name}`);
     }
 }
 UISystem.elementCache = new Map();

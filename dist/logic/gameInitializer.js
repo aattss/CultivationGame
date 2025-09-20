@@ -18,15 +18,14 @@ export class GameInitializer {
         gameState.meridianFortune = Array(CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS).fill(false);
         gameState.extraMeridiansEnabled = false;
         gameState.organEx = Array(gameState.organEx.length).fill(0);
-        gameState.log.push("You began your journey");
+        Utility.addLogMessage("You began your journey");
     }
     /**
      * Start a new life cycle with fresh stats and progression
      */
     static startLife() {
         if (gameState.extraMeridiansEnabled) {
-            gameState.meridianMax =
-                CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS;
+            gameState.meridianMax = CONSTANTS.MERIDIAN_COUNT + CONSTANTS.EXTRAORDINARY_MERIDIANS;
         }
         else {
             gameState.meridianMax = CONSTANTS.MERIDIAN_COUNT;
@@ -35,8 +34,7 @@ export class GameInitializer {
         gameState.meridianCapacity = 0;
         gameState.meridiansOpened = 0;
         gameState.qi = 0;
-        gameState.qiPurity =
-            CONSTANTS.BASE_QI_PURITY + Utility.rollOneDice(gameState.highestQiFold);
+        gameState.qiPurity = CONSTANTS.BASE_QI_PURITY + Utility.rollOneDice(gameState.highestQiFold);
         gameState.circulationSkill = 0;
         gameState.circulationProficiency = 0;
         gameState.qiFolds = 0;
@@ -44,7 +42,7 @@ export class GameInitializer {
         gameState.pillarQuality = 0;
         gameState.dantianGrade = 0;
         gameState.longevity = 0;
-        gameState.daoRunes = gameState.daoRunes.map((value) => Math.random() < 0.5 ? 0 : value);
+        gameState.daoRunes = gameState.daoRunes.map((value) => (Math.random() < 0.5 ? 0 : value));
         gameState.daoRuneMultiplier = Math.pow(2.5, Utility.sum(gameState.daoRunes));
         gameState.dead = false;
         gameState.dantianRerolls = gameState.shopUpgrades.dantianReroll;
@@ -57,7 +55,9 @@ export class GameInitializer {
             meridiansOpenedAtDeath: 0,
             ageAtDeath: 0,
             qiFoldsAtDeath: 0,
+            chakrasAtDeath: 0,
             ageAt12thMeridian: null,
+            ageAt20thMeridian: null,
         };
         gameState.daoTreasureQuality = [];
         gameState.treasureCondenseAttempts = 0;
@@ -81,16 +81,9 @@ export class GameInitializer {
         gameState.vitality = Utility.rollDice(10, 1, 2, gameState.shopUpgrades.rerollVitality);
         gameState.vitality += Utility.rollOneDice(gameState.highestMeridian / 6);
         gameState.vitality += Utility.rollOneDice(gameState.highestCycle);
-        if (Utility.rollDice(100, 1, 1, gameState.shopUpgrades.bloodlineReroll) == 100) {
-            gameState.log.push("You awakened a special bloodline.");
-            gameState.vitality += Utility.rollDice(10, 1, 2, 1);
-            const organEnhanced = Utility.rollOneDice(5, 0);
-            gameState.organTalent[organEnhanced] += Utility.rollOneDice(100, 1);
-            gameState.seenBloodline = true;
-            if (gameState.organEx[organEnhanced] == 0) {
-                gameState.organEx[organEnhanced] += 1;
-            }
-        }
+        // Generate bloodline if obtained
+        this._generateBloodline();
+        // Dao rune generation
         if (Utility.rollDice(100, 1, 1, gameState.shopUpgrades.daoRuneReroll) == 100) {
             CultivationSystem.gainRandomDaoRune();
         }
@@ -170,7 +163,8 @@ export class GameInitializer {
      * @private
      */
     static _generateChakraTalents() {
-        gameState.chakraTalent = Array.from({ length: 7 }, () => Utility.rollOneDice(100, 1));
+        const chakraCount = gameState.shopUpgrades.extraChakras > 0 ? 9 : 7;
+        gameState.chakraTalent = Array.from({ length: chakraCount }, () => Utility.rollOneDice(100, 1));
         for (let i = 0; i < gameState.shopUpgrades.chakraTalentReroll; i++) {
             const minChakra = Utility.findMinIndex(gameState.chakraTalent);
             const reroll = Utility.rollOneDice(100, 1);
@@ -178,15 +172,16 @@ export class GameInitializer {
                 gameState.chakraTalent[minChakra] = reroll;
             }
         }
+        gameState.chakraTalent.forEach((_talent, index) => {
+            gameState.chakraTalent[index] += gameState.chakraEx[index];
+        });
     }
     /**
      * Calculate the starting age based on wisdom
      * @private
      */
     static _calculateStartAge() {
-        gameState.startAge =
-            CONSTANTS.BASE_AGE -
-                Math.max(Math.ceil(Math.log(gameState.wisdom / 15) / Math.log(1.5)), 0);
+        gameState.startAge = CONSTANTS.BASE_AGE - Math.max(Math.ceil(Math.log(gameState.wisdom / 15) / Math.log(1.5)), 0);
         gameState.startAge -= gameState.shopUpgrades.earlyStart;
         gameState.startAge = Math.max(gameState.startAge, 0);
     }
@@ -197,6 +192,59 @@ export class GameInitializer {
     static _simulateEarlyYears() {
         for (gameState.age = 0; gameState.age < gameState.startAge; gameState.age++) {
             GameLogic.oneYearPass(false);
+        }
+    }
+    /**
+     * Generate bloodline with intensity system and organ enhancements
+     * @private
+     */
+    static _generateBloodline() {
+        let bloodlineObtained = false;
+        let remainingRerolls = gameState.shopUpgrades.bloodlineReroll + 1; // +1 for base roll
+        // Initial bloodline acquisition rolls
+        for (let i = 0; i < gameState.shopUpgrades.bloodlineReroll && !bloodlineObtained; i++) {
+            remainingRerolls--;
+            if (Utility.rollOneDice(100, 1) == 100) {
+                bloodlineObtained = true;
+            }
+        }
+        if (!bloodlineObtained) {
+            return;
+        }
+        // Base bloodline effects
+        gameState.vitality += Utility.rollDice(10, 1, 2, 1);
+        let organEnhanced = Utility.rollOneDice(5, 0);
+        gameState.organTalent[organEnhanced] += Utility.rollOneDice(100, 1);
+        gameState.seenBloodline = true;
+        if (gameState.organEx[organEnhanced] == 0) {
+            gameState.organEx[organEnhanced] += 1;
+        }
+        // Intensity progression system
+        let intensity = 1;
+        let intensityRoll = Utility.rollOneDice(10, 1);
+        while (intensityRoll == 10 || remainingRerolls > 0) {
+            if (intensityRoll == 10) {
+                // Successful intensity increase
+                intensity++;
+                gameState.vitality += Utility.rollDice(10, 1, 2, 1);
+                organEnhanced = Utility.rollOneDice(5, 0);
+                gameState.organTalent[organEnhanced] += Utility.rollOneDice(100, 1);
+                gameState.organEx[organEnhanced] += 1;
+                // Roll for next intensity level
+                intensityRoll = Utility.rollOneDice(10, 1);
+            }
+            // Use remaining rerolls if current roll wasn't successful
+            while (remainingRerolls > 0 && intensityRoll != 10) {
+                intensityRoll = Utility.rollOneDice(10, 1);
+                remainingRerolls--;
+            }
+        }
+        // Log bloodline acquisition
+        if (intensity > 1) {
+            Utility.addLogMessage(`You awakened a special bloodline of ${intensity} intensity.`);
+        }
+        else {
+            Utility.addLogMessage("You awakened a special bloodline.");
         }
     }
 }

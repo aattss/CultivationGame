@@ -55,6 +55,7 @@ export function createInitialGameState() {
         // Chakra System
         openedChakras: 0,
         chakraTalent: Array(7).fill(0),
+        chakraEx: Array(9).fill(0),
         daoTreasureQuality: [],
         treasureCondenseAttempts: 0,
         // Game settings
@@ -79,13 +80,17 @@ export function createInitialGameState() {
             meridiansOpenedAtDeath: 0,
             ageAtDeath: 0,
             qiFoldsAtDeath: 0,
+            chakrasAtDeath: 0,
             ageAt12thMeridian: null,
+            ageAt20thMeridian: null,
         },
         averageLifeStats: {
             meridiansOpenedAtDeath: 0,
             ageAtDeath: 0,
             qiFoldsAtDeath: 0,
+            chakrasAtDeath: 0,
             ageAt12thMeridian: null,
+            ageAt20thMeridian: null,
         },
         shopUpgrades: {
             rerollMeridianTalent: 0,
@@ -103,6 +108,7 @@ export function createInitialGameState() {
             extraMeridians: 0,
             longevityUnlocked: 0,
             extraPillars: 0,
+            extraChakras: 0,
         },
     };
 }

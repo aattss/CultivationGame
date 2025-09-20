@@ -38,6 +38,7 @@ export declare class CultivationSystem {
      * Form a dantian with accumulated pillars
      */
     static formDantian(): void;
+    static getDantianDifficulty(): number;
     /**
      * Cultivate acupoints to increase qi capacity
      */
