@@ -87,16 +87,10 @@ export class GameInitializer {
     gameState.vitality += Utility.rollOneDice(gameState.highestMeridian / 6);
     gameState.vitality += Utility.rollOneDice(gameState.highestCycle);
 
-    if (Utility.rollDice(100, 1, 1, gameState.shopUpgrades.bloodlineReroll) == 100) {
-      Utility.addLogMessage("You awakened a special bloodline.");
-      gameState.vitality += Utility.rollDice(10, 1, 2, 1);
-      const organEnhanced = Utility.rollOneDice(5, 0);
-      gameState.organTalent[organEnhanced] += Utility.rollOneDice(100, 1);
-      gameState.seenBloodline = true;
-      if (gameState.organEx[organEnhanced] == 0) {
-        gameState.organEx[organEnhanced] += 1;
-      }
-    }
+    // Generate bloodline if obtained
+    this._generateBloodline();
+
+    // Dao rune generation
     if (Utility.rollDice(100, 1, 1, gameState.shopUpgrades.daoRuneReroll) == 100) {
       CultivationSystem.gainRandomDaoRune();
     }
@@ -216,6 +210,69 @@ export class GameInitializer {
   static _simulateEarlyYears(): void {
     for (gameState.age = 0; gameState.age < gameState.startAge; gameState.age++) {
       GameLogic.oneYearPass(false);
+    }
+  }
+
+  /**
+   * Generate bloodline with intensity system and organ enhancements
+   * @private
+   */
+  static _generateBloodline(): void {
+    let bloodlineObtained = false;
+    let bloodlineRollsUsed = 0;
+    const totalBloodlineRolls = gameState.shopUpgrades.bloodlineReroll + 1; // +1 for base roll
+    let remainingRerolls = totalBloodlineRolls + 1; // +1 for base roll
+
+    // Initial bloodline acquisition rolls
+    for (let i = 0; i < totalBloodlineRolls && !bloodlineObtained; i++) {
+      remainingRerolls--;
+      if (Utility.rollOneDice(100, 1) == 100) {
+        bloodlineObtained = true;
+      }
+    }
+
+    if (!bloodlineObtained) {
+      return;
+    }
+
+    // Base bloodline effects
+    gameState.vitality += Utility.rollDice(10, 1, 2, 1);
+    let organEnhanced = Utility.rollOneDice(5, 0);
+    gameState.organTalent[organEnhanced] += Utility.rollOneDice(100, 1);
+    gameState.seenBloodline = true;
+    if (gameState.organEx[organEnhanced] == 0) {
+      gameState.organEx[organEnhanced] += 1;
+    }
+
+    // Intensity progression system
+    let intensity = 1;
+    let intensityRoll = Utility.rollOneDice(10, 1);
+
+    while (intensityRoll == 10 || remainingRerolls > 0) {
+      if (intensityRoll == 10) {
+        // Successful intensity increase
+        intensity++;
+        gameState.vitality += Utility.rollDice(10, 1, 2, 1);
+        organEnhanced = Utility.rollOneDice(5, 0);
+        gameState.organTalent[organEnhanced] += Utility.rollOneDice(100, 1);
+        gameState.organEx[organEnhanced] += 1;
+
+        // Roll for next intensity level
+        intensityRoll = Utility.rollOneDice(10, 1);
+      }
+
+      // Use remaining rerolls if current roll wasn't successful
+      while (remainingRerolls > 0 && intensityRoll != 10) {
+        intensityRoll = Utility.rollOneDice(10, 1);
+        remainingRerolls--;
+      }
+    }
+
+    // Log bloodline acquisition
+    if (intensity > 1) {
+      Utility.addLogMessage(`You awakened a special bloodline of ${intensity} intensity.`);
+    } else {
+      Utility.addLogMessage("You awakened a special bloodline.");
     }
   }
 }
