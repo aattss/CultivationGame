@@ -116,6 +116,7 @@ export class GameLogic {
       gameState.currentLifeStats.meridiansOpenedAtDeath = gameState.meridiansOpened;
       gameState.currentLifeStats.ageAtDeath = gameState.age;
       gameState.currentLifeStats.qiFoldsAtDeath = gameState.qiFolds;
+      gameState.currentLifeStats.chakrasAtDeath = gameState.openedChakras;
 
       // Add to life statistics history (keep only last 10)
       gameState.lifeStats.push({ ...gameState.currentLifeStats });
@@ -126,19 +127,23 @@ export class GameLogic {
       if (gameState.averageLifeStats["meridiansOpenedAtDeath"] < 12) {
         gameState.averageLifeStats["ageAt12thMeridian"] = null;
       }
+      if (gameState.extraMeridiansEnabled && gameState.averageLifeStats["meridiansOpenedAtDeath"] < 20) {
+        gameState.averageLifeStats["ageAt20thMeridian"] = null;
+      }
 
       Utility.addLogMessage("Life " + gameState.totalLives + ": You died at age " + gameState.age);
       gameState.totalLives += 1;
       let pointGain =
-        Math.floor(gameState.age / 40) +
+        gameState.age / 30 +
+        Math.max(0, (gameState.age - 180) / 20) +
         gameState.meridiansOpened * 2 +
         gameState.qiFolds * 4 +
         gameState.pillars * 3 +
         gameState.dantianGrade * 4 +
         gameState.organsPurified +
         gameState.cyclesCleansed * 5 +
-        gameState.openedChakras * 8;
-      gameState.samsaraPoints += pointGain;
+        gameState.openedChakras * 10;
+      gameState.samsaraPoints += Math.floor(pointGain);
     }
   }
 

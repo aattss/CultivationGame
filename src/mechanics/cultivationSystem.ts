@@ -25,7 +25,7 @@ export class CultivationSystem {
       Math.max(0, Math.log10(gameState.qi)) +
       gameState.qiFolds / 1.5 +
       gameState.dantianGrade / 4 +
-      Utility.sum(gameState.daoTreasureQuality) / 20;
+      Math.sqrt(Utility.sum(gameState.daoTreasureQuality)) / 5;
     return Math.round(combatPower * 10) / 10;
   }
 
@@ -38,7 +38,7 @@ export class CultivationSystem {
       Math.ceil(
         Math.pow(gameState.circulationSkill + 1, 2) * Math.pow(1.7, gameState.circulationGrade) + gameState.vitality / 4
       ) *
-      (1 + gameState.dantianGrade)
+      (1 + gameState.dantianGrade / 2)
     );
   }
 
@@ -81,6 +81,13 @@ export class CultivationSystem {
         gameState.currentLifeStats.ageAt12thMeridian = gameState.age;
         Utility.addLogMessage(
           "Life " + gameState.totalLives + ": You opened primary meridians at age " + gameState.age
+        );
+      }
+      if (gameState.meridiansOpened == 20 && gameState.extraMeridiansEnabled) {
+        // Track age when 20th meridian is opened (only when extra meridians are enabled)
+        gameState.currentLifeStats.ageAt20thMeridian = gameState.age;
+        Utility.addLogMessage(
+          "Life " + gameState.totalLives + ": You opened all extraordinary meridians at age " + gameState.age
         );
       }
       combo += 1;
@@ -309,6 +316,7 @@ export class CultivationSystem {
     if (gameState.qi / 4 > treasureCost) {
       gameState.qi -= treasureCost;
       const quality = Utility.rollOneDice(gameState.comprehension + gameState.treasureCondenseAttempts * 2, 0);
+      gameState.treasureCondenseAttempts += 1;
       if (gameState.wisdom / 11 > Math.pow(gameState.daoTreasureQuality.length, 1.2)) {
         gameState.daoTreasureQuality.push(quality);
       } else {

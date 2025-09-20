@@ -94,13 +94,17 @@ export function createInitialGameState(): GameState {
       meridiansOpenedAtDeath: 0,
       ageAtDeath: 0,
       qiFoldsAtDeath: 0,
+      chakrasAtDeath: 0,
       ageAt12thMeridian: null,
+      ageAt20thMeridian: null,
     },
     averageLifeStats: {
       meridiansOpenedAtDeath: 0,
       ageAtDeath: 0,
       qiFoldsAtDeath: 0,
+      chakrasAtDeath: 0,
       ageAt12thMeridian: null,
+      ageAt20thMeridian: null,
     },
 
     shopUpgrades: {

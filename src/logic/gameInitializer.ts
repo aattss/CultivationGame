@@ -57,7 +57,9 @@ export class GameInitializer {
       meridiansOpenedAtDeath: 0,
       ageAtDeath: 0,
       qiFoldsAtDeath: 0,
+      chakrasAtDeath: 0,
       ageAt12thMeridian: null,
+      ageAt20thMeridian: null,
     };
 
     gameState.daoTreasureQuality = [];
@@ -219,12 +221,10 @@ export class GameInitializer {
    */
   static _generateBloodline(): void {
     let bloodlineObtained = false;
-    let bloodlineRollsUsed = 0;
-    const totalBloodlineRolls = gameState.shopUpgrades.bloodlineReroll + 1; // +1 for base roll
-    let remainingRerolls = totalBloodlineRolls + 1; // +1 for base roll
+    let remainingRerolls = gameState.shopUpgrades.bloodlineReroll + 1; // +1 for base roll
 
     // Initial bloodline acquisition rolls
-    for (let i = 0; i < totalBloodlineRolls && !bloodlineObtained; i++) {
+    for (let i = 0; i < gameState.shopUpgrades.bloodlineReroll && !bloodlineObtained; i++) {
       remainingRerolls--;
       if (Utility.rollOneDice(100, 1) == 100) {
         bloodlineObtained = true;

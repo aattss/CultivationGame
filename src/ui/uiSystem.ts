@@ -160,7 +160,9 @@ export class UISystem {
       "highest dantian grade": "highest-dantian-container", // Part of advanced stats, controlled by logic
       "average qi folds": "average-qi-folds-container",
       "highest chakras": "highest-chakras-container",
+      "average chakras": "average-chakras-container",
       "average primary meridians": "average-primary-meridians-container",
+      "average extraordinary meridians": "average-extraordinary-meridians-container",
       "average meridians": "average-meridians-container",
       "highest meridian": "highest-meridian-container",
       age: null, // Always visible
@@ -226,6 +228,7 @@ export class UISystem {
     const hasOpenedMeridians = gameState.highestMeridian >= 12;
     const hasChakras = gameState.highestChakra > 0;
     const hasAgeAt12thMeridian = gameState.averageLifeStats.ageAt12thMeridian != null;
+    const hasAgeAt20thMeridian = gameState.averageLifeStats.ageAt20thMeridian != null;
     const showMeridianTalent = gameState.totalLives > 8;
 
     // Prepare ALL element updates - no conditional logic here
@@ -236,7 +239,9 @@ export class UISystem {
       "highest dantian grade": gameState.highestDantian,
       "average qi folds": gameState.averageLifeStats.qiFoldsAtDeath,
       "highest chakras": gameState.highestChakra,
+      "average chakras": gameState.averageLifeStats.chakrasAtDeath,
       "average primary meridians": gameState.averageLifeStats.ageAt12thMeridian || 0,
+      "average extraordinary meridians": gameState.averageLifeStats.ageAt20thMeridian || 0,
       "average meridians": gameState.averageLifeStats.meridiansOpenedAtDeath,
       "highest meridian": gameState.highestMeridian,
     };
@@ -246,13 +251,15 @@ export class UISystem {
       "meridian-talent-container": showMeridianTalent,
       "highest-qi-folds-container": hasOpenedMeridians,
       "highest-chakras-container": hasOpenedMeridians && hasChakras,
+      "average-chakras-container": hasOpenedMeridians && hasChakras,
       "comprehension-container": hasOpenedMeridians,
       "average-qi-folds-container": hasOpenedMeridians,
       "average-primary-meridians-container": hasOpenedMeridians && hasAgeAt12thMeridian,
+      "average-extraordinary-meridians-container": gameState.extraMeridiansEnabled && hasAgeAt20thMeridian,
       "highest-meridian-container": !hasOpenedMeridians,
       "highest-dantian-container": gameState.highestDantian > 0,
       "average-meridians-container":
-        (!hasOpenedMeridians && !hasAgeAt12thMeridian) || (hasOpenedMeridians && !hasAgeAt12thMeridian),
+        (gameState.shopUpgrades.extraMeridians && !hasAgeAt20thMeridian) || !hasAgeAt12thMeridian,
     };
 
     // Use consolidated update method

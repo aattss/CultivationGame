@@ -26,7 +26,9 @@ export interface LifeStats {
   meridiansOpenedAtDeath: number;
   ageAtDeath: number;
   qiFoldsAtDeath: number;
+  chakrasAtDeath: number;
   ageAt12thMeridian: number | null;
+  ageAt20thMeridian: number | null;
 }
 
 export interface GameState {
