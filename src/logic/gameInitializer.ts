@@ -184,7 +184,8 @@ export class GameInitializer {
    * @private
    */
   static _generateChakraTalents(): void {
-    gameState.chakraTalent = Array.from({ length: 7 }, () => Utility.rollOneDice(100, 1));
+    const chakraCount = gameState.shopUpgrades.extraChakras > 0 ? 9 : 7;
+    gameState.chakraTalent = Array.from({ length: chakraCount }, () => Utility.rollOneDice(100, 1));
     for (let i = 0; i < gameState.shopUpgrades.chakraTalentReroll; i++) {
       const minChakra = Utility.findMinIndex(gameState.chakraTalent);
       const reroll = Utility.rollOneDice(100, 1);
@@ -192,6 +193,10 @@ export class GameInitializer {
         gameState.chakraTalent[minChakra] = reroll;
       }
     }
+
+    gameState.chakraTalent.forEach((_talent, index) => {
+      gameState.chakraTalent[index] += gameState.chakraEx[index];
+    });
   }
 
   /**

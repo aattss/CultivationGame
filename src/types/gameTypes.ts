@@ -19,6 +19,7 @@ export interface ShopUpgrades {
   extraMeridians: number;
   longevityUnlocked: number;
   extraPillars: number;
+  extraChakras: number;
 }
 
 export interface LifeStats {
@@ -82,6 +83,7 @@ export interface GameState {
   // Chakra System
   openedChakras: number;
   chakraTalent: number[];
+  chakraEx: number[];
 
   // Treasure system
   daoTreasureQuality: number[];
@@ -171,12 +173,6 @@ export type CultivationEvent =
   | "dantian_formed"
   | "death"
   | "tribulation";
-
-// Utility type for array indices
-export type MeridianIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
-export type OrganIndex = 0 | 1 | 2 | 3 | 4;
-export type ChakraIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-export type DaoRuneIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 /**
  * Configuration for a tribulation event

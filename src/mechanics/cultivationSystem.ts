@@ -105,7 +105,7 @@ export class CultivationSystem {
       gameState.circulationSkill += 1;
 
       if (
-        Math.random() * 500 * (gameState.enlightenment + 1) <
+        Math.random() * 1000 * (gameState.enlightenment + 1) <
         ((gameState.circulationGrade - gameState.enlightenment) * gameState.wisdom) / 10
       ) {
         gameState.enlightenment += 1;
@@ -274,7 +274,8 @@ export class CultivationSystem {
   }
 
   static cultivateChakras(): void {
-    if (gameState.openedChakras == 7) {
+    const maxChakras = gameState.shopUpgrades.extraChakras > 0 ? 9 : 7;
+    if (gameState.openedChakras == maxChakras) {
       return;
     }
     let cumChakraTalents = 0;
@@ -284,9 +285,12 @@ export class CultivationSystem {
     const chakraCost = 50 * (150 * (gameState.openedChakras + 1) - cumChakraTalents);
     if (gameState.qi > chakraCost) {
       gameState.qi -= chakraCost;
+      gameState.wisdom += 1;
+      if (Math.random() < Math.pow(gameState.wisdom - gameState.chakraEx[gameState.openedChakras], 2) / 100000) {
+        gameState.chakraEx[gameState.openedChakras] += 1;
+      }
       gameState.openedChakras += 1;
       gameState.comprehension += Math.ceil(cumChakraTalents / 50);
-      gameState.wisdom += 1;
     }
   }
 
