@@ -22,6 +22,14 @@ export function createInitialGameState(): GameState {
     startAge: 0,
     longevity: 0,
 
+    // Talent system
+    combatTalent: 0,
+    alchemyTalent: 0,
+    forgingTalent: 0,
+    combatEx: 0,
+    alchemyEx: 0,
+    forgingEx: 0,
+
     // Meridian system
     meridianTalent: Array(12).fill(0),
     meridianCapacity: 0,
@@ -124,6 +132,9 @@ export function createInitialGameState(): GameState {
       longevityUnlocked: 0,
       extraPillars: 0,
       extraChakras: 0,
+      combatTalentReroll: 0,
+      alchemyTalentReroll: 0,
+      forgingTalentReroll: 0,
     },
   };
 }

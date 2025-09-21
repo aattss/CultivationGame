@@ -20,6 +20,9 @@ export interface ShopUpgrades {
   longevityUnlocked: number;
   extraPillars: number;
   extraChakras: number;
+  combatTalentReroll: number;
+  alchemyTalentReroll: number;
+  forgingTalentReroll: number;
 }
 
 export interface LifeStats {
@@ -41,6 +44,14 @@ export interface GameState {
   dead: boolean;
   startAge: number;
   longevity: number;
+
+  // Talent system
+  combatTalent: number;
+  alchemyTalent: number;
+  forgingTalent: number;
+  combatEx: number;
+  alchemyEx: number;
+  forgingEx: number;
 
   // Meridian system
   meridianTalent: number[];
