@@ -19,12 +19,16 @@ export interface ShopUpgrades {
     longevityUnlocked: number;
     extraPillars: number;
     extraChakras: number;
+    combatTalentReroll: number;
+    alchemyTalentReroll: number;
+    forgingTalentReroll: number;
 }
 export interface LifeStats {
     meridiansOpenedAtDeath: number;
     ageAtDeath: number;
     qiFoldsAtDeath: number;
     chakrasAtDeath: number;
+    potentialAtDeath: number;
     ageAt12thMeridian: number | null;
     ageAt20thMeridian: number | null;
 }
@@ -37,6 +41,13 @@ export interface GameState {
     dead: boolean;
     startAge: number;
     longevity: number;
+    potential: number;
+    combatTalent: number;
+    alchemyTalent: number;
+    forgingTalent: number;
+    combatEx: number;
+    alchemyEx: number;
+    forgingEx: number;
     meridianTalent: number[];
     meridianCapacity: number;
     meridiansOpened: number;
@@ -80,6 +91,7 @@ export interface GameState {
     highestDantian: number;
     highestChakra: number;
     highestCycle: number;
+    highestPotential: number;
     log: string[];
     samsaraPoints: number;
     seenBloodline: boolean;

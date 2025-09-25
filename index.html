@@ -10,6 +10,8 @@
         <br />
         <button onclick="pauseGame()">Pause Game</button>
         <br />
+        <button onclick="toggleNightMode()">Night Mode</button>
+        <br />
         <button onclick="resetSave()">Reset Save</button>
         <br />
         <button onclick="saveGameToFile()">Save to File</button>
@@ -95,6 +97,8 @@
               Comprehension: <span id="comprehension"></span>
               <br />
             </div>
+            Potential: <span id="potential"></span>
+            <br />
           </div>
 
           <!-- Records & Averages Tab -->
@@ -115,6 +119,8 @@
               Highest Chakras: <span id="highest chakras"></span>
               <br />
             </div>
+            Highest Potential: <span id="highest potential"></span>
+            <br />
             <br />
             Last Ten Runs Average:
             <br />
@@ -142,6 +148,8 @@
               Average Chakras: <span id="average chakras"></span>
               <br />
             </div>
+            Average Potential: <span id="average potential"></span>
+            <br />
           </div>
         </div>
 
@@ -157,6 +165,35 @@
     </div>
     <script type="module" src="./dist/index.js"></script>
     <script>
+      // Night mode functionality
+      function toggleNightMode() {
+        const body = document.body;
+        const isNightMode = body.classList.toggle("dark-mode");
+
+        // Update button text
+        const button = event.target;
+        button.textContent = isNightMode ? "Light Mode" : "Night Mode";
+
+        // Save preference to localStorage
+        localStorage.setItem("nightMode", isNightMode);
+      }
+
+      // Load night mode preference on page load
+      function loadNightModePreference() {
+        const nightModeEnabled = localStorage.getItem("nightMode") === "true";
+        if (nightModeEnabled) {
+          document.body.classList.add("dark-mode");
+          // Update button text if it exists
+          const nightModeButton = document.querySelector('button[onclick="toggleNightMode()"]');
+          if (nightModeButton) {
+            nightModeButton.textContent = "Light Mode";
+          }
+        }
+      }
+
+      // Initialize night mode on page load
+      document.addEventListener("DOMContentLoaded", loadNightModePreference);
+
       function switchTab(tabName) {
         // Hide all tab contents
         const tabContents = document.querySelectorAll(".tab-content");

@@ -22,7 +22,9 @@ export class CultivationSystem {
             Math.max(0, Math.log10(gameState.qi)) +
             gameState.qiFolds / 1.5 +
             gameState.dantianGrade / 4 +
-            Math.sqrt(Utility.sum(gameState.daoTreasureQuality)) / 5;
+            Utility.sum(gameState.daoTreasureQuality) / 10 +
+            gameState.combatTalent / 50 -
+            1;
         return Math.round(combatPower * 10) / 10;
     }
     /**
@@ -30,8 +32,10 @@ export class CultivationSystem {
      * @returns Qi gained per cycle
      */
     static getQiRate() {
-        return (Math.ceil(Math.pow(gameState.circulationSkill + 1, 2) * Math.pow(1.7, gameState.circulationGrade) + gameState.vitality / 4) *
-            (1 + gameState.dantianGrade / 2));
+        return Math.ceil(Math.pow(gameState.circulationSkill + 1, 2) *
+            Math.pow(1.7, gameState.circulationGrade) *
+            (1 + gameState.dantianGrade / 2) +
+            gameState.vitality / 4);
     }
     /**
      * Attempt to open meridians based on current stats
@@ -162,7 +166,7 @@ export class CultivationSystem {
     static formDantian() {
         let difficulty = CultivationSystem.getDantianDifficulty();
         let cost = 100 * gameState.dantianGrade;
-        const foundation = gameState.pillarQuality + gameState.qiFolds;
+        const foundation = gameState.pillarQuality + gameState.qiFolds + gameState.alchemyTalent / 25 - 2;
         while (gameState.dantianRerolls > 0 && difficulty < foundation) {
             gameState.dantianRerolls -= 1;
             difficulty = Utility.rollOneDice(3 * gameState.dantianGrade + 16, 1);
@@ -190,6 +194,9 @@ export class CultivationSystem {
                 gameState.dantianGrade +
                 " dantian at age " +
                 gameState.age);
+            if (Math.random() / gameState.dantianGrade < 0.001 / (1 + gameState.alchemyEx / 10)) {
+                gameState.alchemyEx += 1;
+            }
         }
     }
     static getDantianDifficulty() {
@@ -276,7 +283,7 @@ export class CultivationSystem {
         const treasureCost = 1400 * Math.pow(1.5, gameState.treasureCondenseAttempts);
         if (gameState.qi / 4 > treasureCost) {
             gameState.qi -= treasureCost;
-            const quality = Utility.rollOneDice(gameState.comprehension + gameState.treasureCondenseAttempts * 2, 0);
+            const quality = Math.floor(Math.sqrt(Utility.rollOneDice(gameState.comprehension + (gameState.treasureCondenseAttempts * gameState.forgingTalent) / 20, 0)));
             gameState.treasureCondenseAttempts += 1;
             if (gameState.wisdom / 11 > Math.pow(gameState.daoTreasureQuality.length, 1.2)) {
                 gameState.daoTreasureQuality.push(quality);

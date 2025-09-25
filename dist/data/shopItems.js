@@ -264,5 +264,35 @@ export const shopItems = {
             gameState.shopUpgrades.extraChakras = 1;
         },
     },
+    combatTalentReroll: {
+        name: "Adds A Reroll For Combat Talent",
+        price: 1100,
+        condition: function () {
+            return gameState.shopUpgrades.combatTalentReroll == 0;
+        },
+        effect: function () {
+            gameState.shopUpgrades.combatTalentReroll = 1;
+        },
+    },
+    alchemyTalentReroll: {
+        name: "Adds A Reroll For Alchemy Talent",
+        price: 1700,
+        condition: function () {
+            return gameState.shopUpgrades.alchemyTalentReroll == 0 && gameState.highestDantian > 0;
+        },
+        effect: function () {
+            gameState.shopUpgrades.alchemyTalentReroll = 1;
+        },
+    },
+    forgingTalentReroll: {
+        name: "Adds A Reroll For Forging Talent",
+        price: 2400,
+        condition: function () {
+            return gameState.shopUpgrades.forgingTalentReroll == 0 && gameState.highestChakra > 0;
+        },
+        effect: function () {
+            gameState.shopUpgrades.forgingTalentReroll = 1;
+        },
+    },
 };
 //# sourceMappingURL=shopItems.js.map
