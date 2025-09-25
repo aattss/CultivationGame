@@ -36,11 +36,11 @@ export class CultivationSystem {
    * @returns Qi gained per cycle
    */
   static getQiRate(): number {
-    return (
-      Math.ceil(
-        Math.pow(gameState.circulationSkill + 1, 2) * Math.pow(1.7, gameState.circulationGrade) + gameState.vitality / 4
-      ) *
-      (1 + gameState.dantianGrade / 2)
+    return Math.ceil(
+      Math.pow(gameState.circulationSkill + 1, 2) *
+        Math.pow(1.7, gameState.circulationGrade) *
+        (1 + gameState.dantianGrade / 2) +
+        gameState.vitality / 4
     );
   }
 
@@ -224,6 +224,9 @@ export class CultivationSystem {
           " dantian at age " +
           gameState.age
       );
+      if (Math.random() / gameState.dantianGrade < 0.001 / (1 + gameState.alchemyEx / 10)) {
+        gameState.alchemyEx += 1;
+      }
     }
   }
 

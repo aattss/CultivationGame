@@ -161,6 +161,8 @@ export class UISystem {
       "average qi folds": "average-qi-folds-container",
       "highest chakras": "highest-chakras-container",
       "average chakras": "average-chakras-container",
+      "highest potential": null, // Always visible
+      "average potential": null, // Always visible
       "average primary meridians": "average-primary-meridians-container",
       "average extraordinary meridians": "average-extraordinary-meridians-container",
       "average meridians": "average-meridians-container",
@@ -172,6 +174,7 @@ export class UISystem {
       vitality: "vitality-container",
       wisdom: "wisdom-container",
       luck: "luck-container",
+      potential: null,
       "samsara-points": null, // Always visible
       "qi purity": "qi-purity-container",
       log: null, // Always visible
@@ -240,6 +243,8 @@ export class UISystem {
       "average qi folds": gameState.averageLifeStats.qiFoldsAtDeath,
       "highest chakras": gameState.highestChakra,
       "average chakras": gameState.averageLifeStats.chakrasAtDeath,
+      "highest potential": gameState.highestPotential,
+      "average potential": gameState.averageLifeStats.potentialAtDeath,
       "average primary meridians": gameState.averageLifeStats.ageAt12thMeridian || 0,
       "average extraordinary meridians": gameState.averageLifeStats.ageAt20thMeridian || 0,
       "average meridians": gameState.averageLifeStats.meridiansOpenedAtDeath,
@@ -303,6 +308,7 @@ export class UISystem {
       vitality: gameState.vitality,
       wisdom: gameState.wisdom,
       luck: gameState.luck,
+      potential: gameState.potential,
       "samsara-points": gameState.samsaraPoints,
       "qi purity": gameState.qiPurity,
       comprehension: gameState.comprehension,

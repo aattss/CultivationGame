@@ -61,6 +61,7 @@ export class GameInitializer {
       ageAtDeath: 0,
       qiFoldsAtDeath: 0,
       chakrasAtDeath: 0,
+      potentialAtDeath: 0,
       ageAt12thMeridian: null,
       ageAt20thMeridian: null,
     };
@@ -74,6 +75,7 @@ export class GameInitializer {
     this._generateTalentStats();
     this._generateRandomStats();
     this._generateMeridianTalents();
+    this._calculatePotential();
     this._calculateStartAge();
     this._simulateEarlyYears();
 
@@ -292,5 +294,32 @@ export class GameInitializer {
       Utility.rollDice(100, 1, 1, gameState.shopUpgrades.alchemyTalentReroll) + gameState.alchemyEx;
     gameState.forgingTalent =
       Utility.rollDice(100, 1, 1, gameState.shopUpgrades.forgingTalentReroll) + gameState.forgingEx;
+  }
+
+  /**
+   * Calculate potential based on character stats and talents
+   * This is a stub function that can be expanded with more sophisticated calculations
+   * @private
+   */
+  static _calculatePotential(): void {
+    // Add meridian talent average
+    let meridianAverage =
+      gameState.meridianTalent.reduce((sum, talent) => sum + talent, 0) / gameState.meridianTalent.length;
+
+    // Add organ talent average
+    let organAverage = gameState.organTalent.reduce((sum, talent) => sum + talent, 0) / gameState.organTalent.length;
+
+    // Add chakra talent average
+    let chakraAverage = gameState.chakraTalent.reduce((sum, talent) => sum + talent, 0) / gameState.chakraTalent.length;
+
+    // Combine all factors with some randomness
+    gameState.potential =
+      (Math.sqrt(Math.sqrt(gameState.combatTalent / 50)) *
+        Math.sqrt((meridianAverage / 50) * (gameState.vitality / 10)) *
+        (1 + Math.sqrt(gameState.comprehension / 10)) *
+        (1 + Math.sqrt((organAverage / 50) * (gameState.alchemyTalent / 50))) *
+        (2 + Math.sqrt((chakraAverage / 50) * (gameState.wisdom / 10)))) /
+      10;
+    gameState.potential = Math.round(Math.pow(gameState.potential, 2) * 10) / 10;
   }
 }

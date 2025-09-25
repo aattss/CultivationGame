@@ -82,7 +82,7 @@ export class GameLogic {
       CultivationSystem.cultivate();
     }
 
-    if (Math.random() < CONSTANTS.LUCKY_ENCOUNTER_TRIGGER) {
+    if (Math.random() / Math.log10(gameState.age + 1) < CONSTANTS.LUCKY_ENCOUNTER_TRIGGER) {
       GameLogic.LuckyEncounter();
     }
     GameLogic.tribulation();
@@ -111,12 +111,20 @@ export class GameLogic {
       gameState.highestDantian = Math.max(gameState.highestDantian, gameState.dantianGrade);
       gameState.highestChakra = Math.max(gameState.highestChakra, gameState.openedChakras);
       gameState.highestCycle = Math.max(gameState.highestCycle, gameState.cyclesCleansed);
+      gameState.highestPotential = Math.max(gameState.highestPotential, gameState.potential);
+      if (Math.random() / Math.sqrt(gameState.age) < 0.0005 / (1 + gameState.combatEx / 10)) {
+        gameState.combatEx += 1;
+      }
+      if (Math.random() / Math.sqrt(gameState.treasureCondenseAttempts) < 0.005 / (1 + gameState.forgingEx / 10)) {
+        gameState.forgingEx += 1;
+      }
 
       // Record current life statistics
       gameState.currentLifeStats.meridiansOpenedAtDeath = gameState.meridiansOpened;
       gameState.currentLifeStats.ageAtDeath = gameState.age;
       gameState.currentLifeStats.qiFoldsAtDeath = gameState.qiFolds;
       gameState.currentLifeStats.chakrasAtDeath = gameState.openedChakras;
+      gameState.currentLifeStats.potentialAtDeath = gameState.potential;
 
       // Add to life statistics history (keep only last 10)
       gameState.lifeStats.push({ ...gameState.currentLifeStats });

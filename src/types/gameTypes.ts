@@ -30,6 +30,7 @@ export interface LifeStats {
   ageAtDeath: number;
   qiFoldsAtDeath: number;
   chakrasAtDeath: number;
+  potentialAtDeath: number;
   ageAt12thMeridian: number | null;
   ageAt20thMeridian: number | null;
 }
@@ -44,6 +45,7 @@ export interface GameState {
   dead: boolean;
   startAge: number;
   longevity: number;
+  potential: number;
 
   // Talent system
   combatTalent: number;
@@ -114,6 +116,7 @@ export interface GameState {
   highestDantian: number;
   highestChakra: number;
   highestCycle: number;
+  highestPotential: number;
   log: string[];
   samsaraPoints: number;
   seenBloodline: boolean;

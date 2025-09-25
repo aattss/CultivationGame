@@ -21,6 +21,7 @@ export function createInitialGameState(): GameState {
     dead: false,
     startAge: 0,
     longevity: 0,
+    potential: 0,
 
     // Talent system
     combatTalent: 0,
@@ -90,6 +91,7 @@ export function createInitialGameState(): GameState {
     highestDantian: 0,
     highestChakra: 0,
     highestCycle: 0,
+    highestPotential: 0,
     log: [],
     samsaraPoints: 0,
     seenBloodline: false,
@@ -103,6 +105,7 @@ export function createInitialGameState(): GameState {
       ageAtDeath: 0,
       qiFoldsAtDeath: 0,
       chakrasAtDeath: 0,
+      potentialAtDeath: 0,
       ageAt12thMeridian: null,
       ageAt20thMeridian: null,
     },
@@ -111,6 +114,7 @@ export function createInitialGameState(): GameState {
       ageAtDeath: 0,
       qiFoldsAtDeath: 0,
       chakrasAtDeath: 0,
+      potentialAtDeath: 0,
       ageAt12thMeridian: null,
       ageAt20thMeridian: null,
     },
