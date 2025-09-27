@@ -21,7 +21,6 @@ export class GameInitializer {
         gameState.combatEx = 0;
         gameState.alchemyEx = 0;
         gameState.forgingEx = 0;
-        Utility.addLogMessage("You began your journey");
     }
     /**
      * Start a new life cycle with fresh stats and progression
@@ -85,7 +84,6 @@ export class GameInitializer {
     static _generateRandomStats() {
         // Vitality with bonus from previous achievements
         gameState.vitality = Utility.rollDice(10, 1, 2, gameState.shopUpgrades.rerollVitality);
-        gameState.vitality += Utility.rollOneDice(gameState.highestMeridian / 6);
         gameState.vitality += Utility.rollOneDice(gameState.highestCycle);
         // Generate bloodline if obtained
         this._generateBloodline();
@@ -100,7 +98,6 @@ export class GameInitializer {
                 gameState.comprehension += Utility.rollOneDice(Math.log10(gameState.circulationMemory[i] / 10));
             }
         }
-        gameState.comprehension += Utility.rollOneDice(gameState.highestMeridian, 0);
         // Wisdom with experience bonus
         gameState.wisdom = Utility.rollDice(10, 1, 2, gameState.shopUpgrades.rerollWisdom);
         gameState.wisdom += Math.floor(Math.sqrt(gameState.totalYears / 100));
@@ -247,10 +244,10 @@ export class GameInitializer {
         }
         // Log bloodline acquisition
         if (intensity > 1) {
-            Utility.addLogMessage(`You awakened a special bloodline of ${intensity} intensity.`);
+            Utility.addLogMessage(`You awakened a special bloodline of ${intensity} intensity.`, ["event", "lifeMilestone"]);
         }
         else {
-            Utility.addLogMessage("You awakened a special bloodline.");
+            Utility.addLogMessage("You awakened a special bloodline.", ["event", "lifeMilestone"]);
         }
     }
     /**

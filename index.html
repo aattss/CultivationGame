@@ -160,6 +160,13 @@
         </div>
       </div>
       <div class="column scroll">
+        <div class="tab-buttons">
+          <button id="log-event-btn" class="tab-button active" onclick="switchLogType('event')">Events</button>
+          <button id="log-lifeMilestone-btn" class="tab-button" onclick="switchLogType('lifeMilestone')">
+            Life Milestones
+          </button>
+          <button id="log-upgrade-btn" class="tab-button" onclick="switchLogType('upgrade')">Upgrades</button>
+        </div>
         <pre><span id="log"></span></pre>
       </div>
     </div>
@@ -216,6 +223,13 @@
         // Add active class to the clicked button
         const clickedButton = event.target;
         clickedButton.classList.add("active");
+      }
+
+      function switchLogType(logType) {
+        // Call the UISystem method to switch logs
+        if (window.UISystem) {
+          window.UISystem.switchLogType(logType);
+        }
       }
     </script>
   </body>

@@ -67,7 +67,10 @@ export class GameLogic {
             if (gameState.extraMeridiansEnabled && gameState.averageLifeStats["meridiansOpenedAtDeath"] < 20) {
                 gameState.averageLifeStats["ageAt20thMeridian"] = null;
             }
-            Utility.addLogMessage("Life " + gameState.totalLives + ": You died at age " + gameState.age);
+            Utility.addLogMessage("Life " + gameState.totalLives + ": You died at age " + gameState.age, [
+                "lifeMilestone",
+                "event",
+            ]);
             gameState.totalLives += 1;
             let pointGain = gameState.age / 30 +
                 Math.max(0, (gameState.age - 180) / 20) +
@@ -109,17 +112,17 @@ export class GameLogic {
                 case 1:
                     Utility.addLogMessage("You came across a spiritual fruit and gained " +
                         Math.ceil(magnitude * Math.sqrt(CultivationSystem.getCombatPower())) +
-                        " vitality.");
+                        " vitality.", "event");
                     gameState.vitality += Math.ceil(magnitude * Math.sqrt(CultivationSystem.getCombatPower()));
                     break;
                 case 2:
                     magnitude = Math.ceil(magnitude / 2);
-                    Utility.addLogMessage("You came across a marrow cleansing pill and gained " + magnitude + " purity.");
+                    Utility.addLogMessage("You came across a marrow cleansing pill and gained " + magnitude + " purity.", "event");
                     gameState.qiPurity += magnitude;
                     break;
                 case 3:
                     if (gameState.meridiansOpened >= 12) {
-                        Utility.addLogMessage("You had an epiphany with your circulation technique.");
+                        Utility.addLogMessage("You had an epiphany with your circulation technique.", "event");
                         gameState.circulationProficiency +=
                             Math.pow(gameState.comprehension / 10, 2) *
                                 gameState.daoRuneMultiplier *
@@ -129,7 +132,7 @@ export class GameLogic {
                     break;
                 case 4:
                     if (gameState.qi < CultivationSystem.getQiCapacity()) {
-                        Utility.addLogMessage("You harvested a qi-rich herb.");
+                        Utility.addLogMessage("You harvested a qi-rich herb.", "event");
                         gameState.qi = Math.min(CultivationSystem.getQiCapacity(), gameState.qi +
                             Math.ceil(magnitude * CultivationSystem.getCombatPower() * Utility.rollOneDice(gameState.luck, 1)));
                     }
@@ -182,7 +185,7 @@ export class GameLogic {
         }
         // Log death message if player died
         if (gameState.vitality <= 0) {
-            Utility.addLogMessage(config.deathMessage);
+            Utility.addLogMessage(config.deathMessage, "lifeMilestone");
         }
     }
     /**

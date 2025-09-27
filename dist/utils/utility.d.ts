@@ -1,4 +1,4 @@
-import type { DiceRollFunction, MultiDiceRollFunction } from "../types/gameTypes.js";
+import type { DiceRollFunction, MultiDiceRollFunction, LogType } from "../types/gameTypes.js";
 /**
  * Utility functions for common operations
  * Contains helper functions used throughout the game
@@ -34,9 +34,10 @@ export declare class Utility {
     static findMinIndex(array: number[]): number;
     static getPotentialEstimate(array: number[]): number;
     /**
-     * Add a message to the game log
+     * Add a message to the game log(s)
      * @param message - The message to add to the log
+     * @param logTypes - The log type(s) to add the message to (defaults to "event")
      */
-    static addLogMessage(message: string): void;
+    static addLogMessage(message: string, logTypes?: LogType | LogType[]): void;
 }
 //# sourceMappingURL=utility.d.ts.map

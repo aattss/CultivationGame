@@ -92,7 +92,9 @@ export interface GameState {
     highestChakra: number;
     highestCycle: number;
     highestPotential: number;
-    log: string[];
+    eventLog: string[];
+    lifeMilestoneLog: string[];
+    upgradeLog: string[];
     samsaraPoints: number;
     seenBloodline: boolean;
     seenDaoRune: boolean;
@@ -143,6 +145,7 @@ export interface UIUpdateConfig {
     containerStates: Record<string, boolean>;
 }
 export type CultivationEvent = "meridian_opened" | "qi_folded" | "pillar_formed" | "dantian_formed" | "death" | "tribulation";
+export type LogType = "event" | "lifeMilestone" | "upgrade";
 /**
  * Configuration for a tribulation event
  */

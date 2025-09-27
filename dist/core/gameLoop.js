@@ -17,20 +17,25 @@ export class GameLoop {
             clearInterval(this.intervalId);
         }
         this.intervalId = window.setInterval(() => {
-            if (gameState.dead) {
-                if (gameState.restartOnDeath) {
-                    GameInitializer.startLife();
+            try {
+                if (gameState.dead) {
+                    if (gameState.restartOnDeath) {
+                        GameInitializer.startLife();
+                    }
+                    else {
+                        gameState.pauseState = true;
+                    }
+                    return;
                 }
-                else {
-                    gameState.pauseState = true;
+                if (gameState.pauseState) {
+                    return;
                 }
-                return;
+                GameLogic.oneYearPass(true);
+                UISystem.refreshClient();
             }
-            if (gameState.pauseState) {
-                return;
+            catch (error) {
+                console.log("Error in game loop:", error);
             }
-            GameLogic.oneYearPass(true);
-            UISystem.refreshClient();
         }, CONSTANTS.GAME_TICK_INTERVAL);
     }
     /**

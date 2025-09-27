@@ -1,1 +1,1 @@
-{"version":3,"file":"gameLoop.d.ts","sourceRoot":"","sources":["../../src/core/gameLoop.ts"],"names":[],"mappings":"AAMA;;;GAGG;AACH,qBAAa,QAAQ;IACnB,MAAM,CAAC,UAAU,EAAE,MAAM,GAAG,IAAI,CAAQ;IAExC;;OAEG;IACH,MAAM,CAAC,KAAK,IAAI,IAAI;IAyBpB;;OAEG;IACH,MAAM,CAAC,KAAK,IAAI,IAAI;CAGrB"}
+{"version":3,"file":"gameLoop.d.ts","sourceRoot":"","sources":["../../src/core/gameLoop.ts"],"names":[],"mappings":"AAOA;;;GAGG;AACH,qBAAa,QAAQ;IACnB,MAAM,CAAC,UAAU,EAAE,MAAM,GAAG,IAAI,CAAQ;IAExC;;OAEG;IACH,MAAM,CAAC,KAAK,IAAI,IAAI;IA6BpB;;OAEG;IACH,MAAM,CAAC,KAAK,IAAI,IAAI;CAGrB"}

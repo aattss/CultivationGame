@@ -56,7 +56,8 @@ export class CultivationSystem {
                 failed = true;
                 break;
             }
-            if (Math.random() * difficulty < effective_vitality - 8 && Math.random() * difficulty < effective_vitality - 16) {
+            if (Math.random() * (difficulty + 10) < effective_vitality - 8 &&
+                Math.random() * (difficulty + 10) < effective_vitality - 16) {
                 gameState.meridianFortune[gameState.meridiansOpened] = true;
             }
             gameState.meridianCapacity += gameState.meridianTalent[gameState.meridiansOpened];
@@ -68,12 +69,12 @@ export class CultivationSystem {
             if (gameState.meridiansOpened == 12) {
                 // Track age when 12th meridian is opened
                 gameState.currentLifeStats.ageAt12thMeridian = gameState.age;
-                Utility.addLogMessage("Life " + gameState.totalLives + ": You opened primary meridians at age " + gameState.age);
+                Utility.addLogMessage("Life " + gameState.totalLives + ": You opened primary meridians at age " + gameState.age, "lifeMilestone");
             }
             if (gameState.meridiansOpened == 20 && gameState.extraMeridiansEnabled) {
                 // Track age when 20th meridian is opened (only when extra meridians are enabled)
                 gameState.currentLifeStats.ageAt20thMeridian = gameState.age;
-                Utility.addLogMessage("Life " + gameState.totalLives + ": You opened all extraordinary meridians at age " + gameState.age);
+                Utility.addLogMessage("Life " + gameState.totalLives + ": You opened all extraordinary meridians at age " + gameState.age, "lifeMilestone");
             }
             combo += 1;
         }
@@ -96,19 +97,19 @@ export class CultivationSystem {
                 ((gameState.circulationGrade - gameState.enlightenment) * gameState.wisdom) / 10) {
                 gameState.enlightenment += 1;
                 gameState.circulationGrade = 1;
-                Utility.addLogMessage("You had a glimpse of enlightenment and started over with your cultivation technique.");
+                Utility.addLogMessage("You had a glimpse of enlightenment and started over with your cultivation technique.", "upgrade");
             }
             else if (Math.random() * gameState.circulationGrade * 100 < gameState.wisdom * gameState.circulationSkill) {
                 gameState.circulationInsights += 1;
                 if (gameState.circulationInsights * Math.random() > gameState.circulationGrade &&
                     gameState.circulationInsights * Math.random() > gameState.circulationGrade) {
-                    Utility.addLogMessage("You had an epiphany and evolved your circulation technique.");
+                    Utility.addLogMessage("You had an epiphany and evolved your circulation technique.", "upgrade");
                     gameState.circulationGrade += 1;
-                    Utility.addLogMessage("It is now grade " + gameState.circulationGrade);
+                    Utility.addLogMessage("It is now grade " + gameState.circulationGrade, "upgrade");
                     gameState.circulationInsights = 0;
                 }
                 else {
-                    Utility.addLogMessage("You had an insight with your circulation technique.");
+                    Utility.addLogMessage("You had an insight with your circulation technique.", "event");
                 }
             }
         }
@@ -150,9 +151,8 @@ export class CultivationSystem {
             if (gameState.pillarQuality > 8 * (3 + gameState.pillarEx)) {
                 gameState.pillarEx += 1;
             }
-            if (gameState.pillars < 8 + 4 * gameState.shopUpgrades.extraPillars &&
-                gameState.qi >= CONSTANTS.PILLAR_QI_COST &&
-                Math.random() < 0.8) {
+            // This does not cause inifinite loop
+            if (gameState.pillars < 8 + 4 * gameState.shopUpgrades.extraPillars && gameState.qi >= CONSTANTS.PILLAR_QI_COST) {
                 CultivationSystem.formPillar();
             }
         }
@@ -182,7 +182,7 @@ export class CultivationSystem {
             cost = 50 * gameState.dantianGrade;
         }
         if (gameState.dantianGrade == 0) {
-            Utility.addLogMessage("You failed to form a dantian.");
+            Utility.addLogMessage("You failed to form a dantian.", "event");
             gameState.vitality -= Utility.rollOneDice(40, 7);
             gameState.qi -= gameState.qi * Math.random() * 0.8;
         }
@@ -193,7 +193,7 @@ export class CultivationSystem {
                 ": You formed a grade " +
                 gameState.dantianGrade +
                 " dantian at age " +
-                gameState.age);
+                gameState.age, "lifeMilestone");
             if (Math.random() / gameState.dantianGrade < 0.001 / (1 + gameState.alchemyEx / 10)) {
                 gameState.alchemyEx += 1;
             }
@@ -274,7 +274,7 @@ export class CultivationSystem {
      * Gain a random dao rune for cultivation bonus
      */
     static gainRandomDaoRune() {
-        Utility.addLogMessage("You see a strange symbol in your dreams.");
+        Utility.addLogMessage("You see a strange symbol in your dreams.", ["event", "lifeMilestone"]);
         gameState.daoRunes[Utility.rollOneDice(9, 0)] = 1;
         gameState.daoRuneMultiplier = Math.pow(2.5, Utility.sum(gameState.daoRunes));
         gameState.seenDaoRune = true;

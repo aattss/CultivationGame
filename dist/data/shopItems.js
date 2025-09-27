@@ -226,7 +226,7 @@ export const shopItems = {
     },
     extraordinaryMeridians: {
         name: "Unlock The Extraordinary Meridians",
-        price: 3000,
+        price: 2500,
         condition: function () {
             return gameState.shopUpgrades.extraMeridians == 0 && gameState.enlightenment >= 2;
         },

@@ -7,7 +7,10 @@ export declare class UISystem {
     static elementCache: ElementCache;
     static lastValues: ValueCache;
     static lastContainerStates: ContainerStateCache;
-    static lastLogLength: number;
+    static lastLogLength: {
+        [key: string]: number;
+    };
+    static currentLogType: string;
     static lastSamsaraPoints: number | null;
     /**
      * Get a cached DOM element
@@ -83,5 +86,15 @@ export declare class UISystem {
      * @param upgrade - The upgrade object
      */
     static purchaseUpgrade(key: string, upgrade: ShopItem): void;
+    /**
+     * Get the content of the currently selected log
+     * @returns The current log content as a string
+     */
+    static getCurrentLogContent(): string;
+    /**
+     * Switch to a different log type
+     * @param logType - The log type to switch to
+     */
+    static switchLogType(logType: string): void;
 }
 //# sourceMappingURL=uiSystem.d.ts.map
