@@ -3,6 +3,7 @@ import { gameState } from "../data/gameState.js";
 import { GameInitializer } from "../logic/gameInitializer.js";
 import { GameLogic } from "../logic/gameLogic.js";
 import { UISystem } from "../ui/uiSystem.js";
+import { Utility } from "../utils/utility.js";
 
 /**
  * Game Loop
@@ -21,21 +22,25 @@ export class GameLoop {
     }
 
     this.intervalId = window.setInterval(() => {
-      if (gameState.dead) {
-        if (gameState.restartOnDeath) {
-          GameInitializer.startLife();
-        } else {
-          gameState.pauseState = true;
+      try {
+        if (gameState.dead) {
+          if (gameState.restartOnDeath) {
+            GameInitializer.startLife();
+          } else {
+            gameState.pauseState = true;
+          }
+          return;
         }
-        return;
-      }
 
-      if (gameState.pauseState) {
-        return;
-      }
+        if (gameState.pauseState) {
+          return;
+        }
 
-      GameLogic.oneYearPass(true);
-      UISystem.refreshClient();
+        GameLogic.oneYearPass(true);
+        UISystem.refreshClient();
+      } catch (error) {
+        console.log("Error in game loop:", error);
+      }
     }, CONSTANTS.GAME_TICK_INTERVAL);
   }
 

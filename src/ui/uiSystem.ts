@@ -14,7 +14,8 @@ export class UISystem {
   static elementCache: ElementCache = new Map();
   static lastValues: ValueCache = new Map();
   static lastContainerStates: ContainerStateCache = new Map();
-  static lastLogLength: number = 0;
+  static lastLogLength: { [key: string]: number } = { event: 0, lifeMilestone: 0, upgrade: 0 };
+  static currentLogType: string = "event";
   static lastSamsaraPoints: number | null = null;
 
   /**
@@ -178,6 +179,10 @@ export class UISystem {
       "samsara-points": null, // Always visible
       "qi purity": "qi-purity-container",
       log: null, // Always visible
+      "log-buttons": null, // Always visible
+      "event-log": null, // Always visible
+      "lifemilestone-log": null, // Always visible
+      "upgrade-log": null, // Always visible
       comprehension: "comprehension-container",
       "qi capacity": "qi-capacity-container",
       "qi folds": "qi-folds-container",
@@ -278,15 +283,23 @@ export class UISystem {
    * Refresh the main game client UI during gameplay
    */
   static refreshClient(): void {
-    // Only update log if it has changed
+    // Only update logs if they have changed
     let logUpdated = false;
-    if (gameState.log.length !== this.lastLogLength) {
-      // Trim log if it gets too long before updating
-      if (gameState.log.length > CONSTANTS.LOG_MAX_LENGTH) {
-        gameState.log.shift();
+    const logs = {
+      event: gameState.eventLog,
+      lifeMilestone: gameState.lifeMilestoneLog,
+      upgrade: gameState.upgradeLog,
+    };
+
+    for (const [logType, logArray] of Object.entries(logs)) {
+      if (logArray.length !== this.lastLogLength[logType]) {
+        // Trim log if it gets too long before updating
+        if (logArray.length > CONSTANTS.LOG_MAX_LENGTH) {
+          logArray.shift();
+        }
+        this.lastLogLength[logType] = logArray.length;
+        logUpdated = true;
       }
-      this.lastLogLength = gameState.log.length;
-      logUpdated = true;
     }
 
     // Consolidated logic: determine all visibility states once
@@ -328,7 +341,7 @@ export class UISystem {
 
     // Only update log if it actually changed
     if (logUpdated) {
-      elementUpdates["log"] = gameState.log.join("\r\n");
+      elementUpdates["log"] = this.getCurrentLogContent();
     }
 
     // Container visibility controls what gets displayed - this is the ONLY conditional logic
@@ -370,7 +383,7 @@ export class UISystem {
     this.elementCache.clear();
     this.lastValues.clear();
     this.lastContainerStates.clear();
-    this.lastLogLength = 0;
+    this.lastLogLength = { event: 0, lifeMilestone: 0, upgrade: 0 };
     this.lastSamsaraPoints = null;
   }
 
@@ -451,6 +464,46 @@ export class UISystem {
     gameSave();
 
     // Log the purchase - this will trigger a refresh on next tick
-    Utility.addLogMessage(`Purchased upgrade: ${upgrade.name}`);
+    Utility.addLogMessage(`Purchased upgrade: ${upgrade.name}`, "upgrade");
+  }
+
+  /**
+   * Get the content of the currently selected log
+   * @returns The current log content as a string
+   */
+  static getCurrentLogContent(): string {
+    switch (this.currentLogType) {
+      case "event":
+        return gameState.eventLog.join("\r\n");
+      case "lifeMilestone":
+        return gameState.lifeMilestoneLog.join("\r\n");
+      case "upgrade":
+        return gameState.upgradeLog.join("\r\n");
+      default:
+        return gameState.eventLog.join("\r\n");
+    }
+  }
+
+  /**
+   * Switch to a different log type
+   * @param logType - The log type to switch to
+   */
+  static switchLogType(logType: string): void {
+    this.currentLogType = logType;
+    // Force log refresh
+    this.updateElementContent("log", this.getCurrentLogContent());
+
+    // Update button states
+    const buttons = ["event", "lifeMilestone", "upgrade"];
+    buttons.forEach((buttonType) => {
+      const button = this.getElement(`log-${buttonType}-btn`);
+      if (button) {
+        if (buttonType === logType) {
+          button.classList.add("active");
+        } else {
+          button.classList.remove("active");
+        }
+      }
+    });
   }
 }

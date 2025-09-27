@@ -117,7 +117,9 @@ export interface GameState {
   highestChakra: number;
   highestCycle: number;
   highestPotential: number;
-  log: string[];
+  eventLog: string[];
+  lifeMilestoneLog: string[];
+  upgradeLog: string[];
   samsaraPoints: number;
   seenBloodline: boolean;
   seenDaoRune: boolean;
@@ -189,6 +191,9 @@ export type CultivationEvent =
   | "dantian_formed"
   | "death"
   | "tribulation";
+
+// Log types for the different log categories
+export type LogType = "event" | "lifeMilestone" | "upgrade";
 
 /**
  * Configuration for a tribulation event

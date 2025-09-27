@@ -1,4 +1,4 @@
-import type { DiceRollFunction, MultiDiceRollFunction } from "../types/gameTypes.js";
+import type { DiceRollFunction, MultiDiceRollFunction, LogType } from "../types/gameTypes.js";
 import { gameState } from "../data/gameState.js";
 
 /**
@@ -72,10 +72,25 @@ export class Utility {
   }
 
   /**
-   * Add a message to the game log
+   * Add a message to the game log(s)
    * @param message - The message to add to the log
+   * @param logTypes - The log type(s) to add the message to (defaults to "event")
    */
-  static addLogMessage(message: string): void {
-    gameState.log.push(message);
+  static addLogMessage(message: string, logTypes: LogType | LogType[] = "event"): void {
+    const types = Array.isArray(logTypes) ? logTypes : [logTypes];
+
+    types.forEach((type) => {
+      switch (type) {
+        case "event":
+          gameState.eventLog.push(message);
+          break;
+        case "lifeMilestone":
+          gameState.lifeMilestoneLog.push(message);
+          break;
+        case "upgrade":
+          gameState.upgradeLog.push(message);
+          break;
+      }
+    });
   }
 }
